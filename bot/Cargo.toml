@@ -1,0 +1,31 @@
+[package]
+name = "ctf_bot"
+version = "0.1.0"
+authors = ["Jordyn <jordyn@husk.pro>"]
+edition = "2018"
+
+[dependencies]
+dotenv = "0.15"
+failure = "0.1.8"
+ctfdb = { path = "../ctfdb" }
+
+[dependencies.serenity]
+version = "0.10"
+default-features = false
+features = [
+    "client",
+    "gateway",
+    "rustls_backend",
+    "model",
+    "framework",
+    "standard_framework",
+    "cache",
+]
+
+[dependencies.tokio]
+version = "1"
+features = ["full"]
+
+# For static compilation
+[patch.crates-io]
+mysqlclient-sys = { git = "https://github.com/pzmarzly/mysqlclient-sys", rev = "acd1b2b" }

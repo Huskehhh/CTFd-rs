@@ -1,0 +1,146 @@
+$fontFamily: 'Lato', helvetica, Arial, Sans-serif
+
+// Colors
+$main: #282c34
+$main-light: #31353e
+$accent: #bab9b9
+
+// Tasks modifiers
+$highestColor: #e74c3c
+$highColor: #e67e22
+$mediumColor: #f1c40f
+$lowColor: #27ae60
+
+body
+  background: $main
+
+.stats
+  background: $main
+  color: $accent
+  text-align: center
+
+//////////////////////////////////////////////////////////
+/////////////////   BOARD
+.board
+  display: flex
+  flex-wrap: nowrap
+  justify-content: space-around
+  padding: 15px
+  min-width: 1000px
+  width: 80%
+  margin: 0 auto
+  align-content: stretch
+
+//////////////////////////////////////////////////////////
+/////////////////   COLUMN BOARD
+.boardColumn
+  font-family: $fontFamily
+  flex-basis: 300px
+  flex-grow: 1
+  margin: 0 5px
+
+  .boardColumn__header
+    padding: 5px
+    margin-bottom: 10px
+    border-bottom: 5px solid $main
+
+  .boardColumn__title
+    text-transform: capitalize
+    color: $accent
+    font-size: 14px
+    line-height: 1.5
+    font-weight: normal
+    margin: 0 5px 0 0
+    word-wrap: break-word
+
+  .boardColumn__taskList
+    background: $main-light
+    padding: 20px 10px
+    min-height: 600px
+    height: 80%
+    max-height: 100%
+    overflow-y: auto
+
+.boardColumn.boardColumn--DONE
+  .taskCard__title
+    text-decoration: line-through
+
+//////////////////////////////////////////////////////////
+/////////////////   task
+.taskCard
+  font-family: $fontFamily
+  border: 1px solid $main
+  border-radius: 5px
+  padding: 15px 15px 10px 15px
+  background: $main
+  position: relative
+  margin-bottom: 5px
+  box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.06)
+  color: $accent
+
+  &:hover
+    cursor: pointer
+
+  &:after
+    content: ""
+    position: absolute
+    top: 5px
+    bottom: 5px
+    left: 5px
+    width: 4px
+    background: red
+    border-top-left-radius: 5px
+    border-bottom-left-radius: 5px
+
+  .taskCard__title
+    margin: 0
+    color: $accent
+    font-weight: 500
+    letter-spacing: 0.5px
+
+  .taskCard__epicLink-title
+    background: #9b59b6
+    padding: 3px 10px
+    font-size: 13px
+    border-radius: 5px
+    color: white
+
+  .taskCard__footer
+    display: flex
+    margin-top: 15px
+    justify-content: space-between
+    align-items: center
+
+  .taskCard__type
+    font-size: 12px
+    font-weight: bold
+
+//////////////////////////////////////////////////////////
+/////////////////   TASK MODIFIERS
+.taskCard.taskCard--HIGHEST
+  &:after
+    background: $highestColor
+
+  .taskCard__type
+    color: $highestColor
+
+.taskCard.taskCard--HIGH
+  &:after
+    background: $highColor
+
+  .taskCard__type
+    color: $highColor
+
+.taskCard.taskCard--MEDIUM
+  &:after
+    background: $mediumColor
+
+  .taskCard__type
+    color: $mediumColor
+
+.taskCard.taskCard--LOW
+  &:after
+    background: $lowColor
+
+  .taskCard__type
+    color: $lowColor
