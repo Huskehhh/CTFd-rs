@@ -1,0 +1,31 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+
+updates:
+# Maintain dependencies for the bot module
+- package-ecosystem: cargo
+  directory: "/bot"
+  schedule:
+    interval: daily
+
+# Maintain dependencies for the ctfdb module
+- package-ecosystem: cargo
+  directory: "/ctfdb"
+  schedule:
+    interval: daily
+
+# Maintain dependencies for the rest-api module
+  - package-ecosystem: cargo
+  directory: "/rest-api"
+  schedule:
+    interval: daily
+
+# Maintain dependencies for the frontend module
+- package-ecosystem: npm
+  directory: "/frontend"
+  schedule:
+    interval: daily
