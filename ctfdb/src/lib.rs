@@ -7,6 +7,8 @@ use std::{env, sync::Arc};
 
 use async_rwlock::RwLock;
 use chrono::NaiveDateTime;
+use ctfd::api::new_ctfdservice;
+use ctfd::structs::{CTFDService, CTFDServiceConfig, ChallengeResponse, TeamSolvesResponseData};
 use dashmap::DashMap;
 use diesel::prelude::*;
 use diesel::{
@@ -17,9 +19,6 @@ use diesel::{
 use failure::Error;
 use once_cell::sync::Lazy;
 
-use ctfd::{
-    new_ctfdservice, CTFDService, CTFDServiceConfig, ChallengeResponse, TeamSolvesResponseData,
-};
 use models::{Challenge, Ctf, Scoreboard};
 
 use crate::r2d2::PooledConnection;
@@ -28,6 +27,7 @@ use crate::schema::ctfs::dsl as ctf_dsl;
 use crate::schema::scoreboard::dsl as scoreboard_dsl;
 
 pub mod ctfd;
+pub mod htb;
 pub mod models;
 pub mod schema;
 
