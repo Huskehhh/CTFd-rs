@@ -6,13 +6,10 @@ use reqwest::{
     ClientBuilder,
 };
 
-use crate::{
-    ctfd::structs::{
+use crate::{ctfd::{db::get_ctf_id_from_name, structs::{
         CTFDService, GetChallengesResponse, GetTeamSolvesResponse, GetUserByIdResponse,
         MyTeamResponse,
-    },
-    get_ctf_id_from_name,
-};
+    }}};
 
 use super::structs::{
     CTFDServiceConfig, ChallengeResponse, MyTeamResponseData, TeamSolvesResponseData,
