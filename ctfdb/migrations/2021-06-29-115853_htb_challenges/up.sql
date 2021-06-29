@@ -1,4 +1,4 @@
-CREATE TABLE `htb-challenges` (
+CREATE TABLE `htb_challenges` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `htb_id` INT NOT NULL,
     `name` TEXT NOT NULL,

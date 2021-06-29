@@ -16,7 +16,7 @@ use super::structs::*;
 
 pub type ChallengeProviderService = Box<dyn ChallengeProvider + Send + Sync>;
 
-pub static CTFD_CACHE: Lazy<DashMap<i32, ChallengeProviderService>> = Lazy::new(DashMap::new);
+pub static CTF_CACHE: Lazy<DashMap<i32, ChallengeProviderService>> = Lazy::new(DashMap::new);
 
 pub async fn get_active_ctfs() -> Result<Vec<Ctf>, Error> {
     let connection = get_pooled_connection().await?;
@@ -60,7 +60,7 @@ pub async fn add_active_ctf(
     // Create & cache all challenges
     initial_create_all_challenges_in_db(&challenge_provider_service).await?;
 
-    CTFD_CACHE.insert(
+    CTF_CACHE.insert(
         challenge_provider_service.get_id(),
         challenge_provider_service,
     );
@@ -325,7 +325,7 @@ async fn load_active_ctfdservices() -> Result<(), Error> {
         let service = new_ctfdservice(service_config).await;
 
         // Insert to cache
-        CTFD_CACHE.insert(service.get_id(), service);
+        CTF_CACHE.insert(service.get_id(), service);
     }
 
     Ok(())
@@ -337,19 +337,19 @@ pub async fn initial_load_tasks() -> Result<(), Error> {
 }
 
 pub async fn check_for_new_solves(ctf: &Ctf) -> Result<Vec<Challenge>, Error> {
-    if let Some(ctfdservice) = CTFD_CACHE.get(&ctf.id) {
+    if let Some(challenge_provider) = CTF_CACHE.get(&ctf.id) {
         let connection = get_pooled_connection().await?;
         let mut new_solves = vec![];
-        let fresh_data = ctfdservice.get_team_solved_challenges().await?;
+        let fresh_data = challenge_provider.get_team_solved_challenges().await?;
 
         for solve in fresh_data {
             let mut challenge =
-                map_response_to_challenge(&connection, &solve, ctfdservice.get_id()).await?;
+                map_response_to_challenge(&connection, &solve, challenge_provider.get_id()).await?;
 
             if !challenge.announced_solve {
                 let solved_time =
                     NaiveDateTime::parse_from_str(&solve.date, "%Y-%m-%dT%H:%M:%S%z")?;
-                let solver_name = ctfdservice.user_from_id(solve.user).await?.name;
+                let solver_name = challenge_provider.user_from_id(solve.user).await?.name;
 
                 challenge.solved_time = Some(solved_time);
                 challenge.solver = Some(solver_name);
@@ -360,7 +360,7 @@ pub async fn check_for_new_solves(ctf: &Ctf) -> Result<Vec<Challenge>, Error> {
     }
 
     Err(format_err!(
-        "No CTFDService found for CTF with id: {}... Something is cooked",
+        "No challenge provider found for CTF with id: {}... Something is cooked",
         ctf.id
     ))
 }

@@ -12,7 +12,7 @@ pub struct GetTeamProfile {
 
 #[derive(Debug, Deserialize)]
 pub struct GetRecentTeamActivity {
-    pub data: Vec<GetRecentTeamActivityData>
+    pub data: Vec<GetRecentTeamActivityData>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -24,7 +24,7 @@ pub struct GetRecentTeamActivityData {
     pub id: i32,
     pub name: String,
     pub points: i32,
-    pub challenge_category: Option<String>
+    pub challenge_category: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -36,7 +36,7 @@ pub struct GetTeamStatistics {
 
 #[derive(Debug, Deserialize)]
 pub struct ListTeamMembers {
-    pub data: Vec<ListTeamMembersData>
+    pub data: Vec<ListTeamMembersData>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -52,7 +52,7 @@ pub struct ListTeamMembersData {
 
 #[derive(Debug, Deserialize)]
 pub struct ListActiveChallenges {
-    pub challenges: Vec<ListActiveChallengesData>
+    pub challenges: Vec<ListActiveChallengesData>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -74,5 +74,5 @@ pub struct HTBAPIConfig {
 #[derive(Debug)]
 pub struct HTBApi {
     pub config: HTBAPIConfig,
-    pub client: Client
+    pub client: Client,
 }

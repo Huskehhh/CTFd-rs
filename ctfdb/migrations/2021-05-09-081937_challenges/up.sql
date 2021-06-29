@@ -8,6 +8,6 @@ CREATE TABLE `challenges` (
     `solver` TEXT NULL,
     `points` INT NOT NULL,
     `solved_time` DATETIME NULL DEFAULT NULL,
-    `announced_solve` BOOLEAN,
+    `announced_solve` BOOLEAN NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;

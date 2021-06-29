@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate failure;
 
-use ctfdb::{ChallengeProvider, ctfs::db::{CTFD_CACHE, check_for_new_solves, get_active_ctfs, get_and_store_scoreboard, mark_solved, update_challenges_and_scores}, models::Challenge};
+use ctfdb::{ChallengeProvider, ctfs::db::{CTF_CACHE, check_for_new_solves, get_active_ctfs, get_and_store_scoreboard, mark_solved, update_challenges_and_scores}, models::Challenge};
 use failure::Error;
 use serenity::{
     builder::CreateEmbed, framework::standard::CommandResult, http::Http, model::id::ChannelId,
@@ -95,7 +95,7 @@ pub async fn new_solve_poller_task(http: &Http) {
         println!("POLLER: Polling CTF: {} for new solves...", ctf.name);
         let solves = check_for_new_solves(&ctf).await;
         let channel_id = ChannelId(ctf.channel_id as u64);
-        let ctfd_service = CTFD_CACHE
+        let ctfd_service = CTF_CACHE
             .get(&ctf.id)
             .expect("No CTFDService with this CTF ID...");
 
@@ -126,7 +126,7 @@ pub async fn new_solve_poller_task(http: &Http) {
 
 #[tokio::main]
 pub async fn scoreboard_and_scores_task() {
-    for entry in CTFD_CACHE.iter() {
+    for entry in CTF_CACHE.iter() {
         let challenge_provider = entry.value();
         match get_and_store_scoreboard(challenge_provider).await {
             Ok(_) => {

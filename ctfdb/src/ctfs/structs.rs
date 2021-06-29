@@ -11,7 +11,7 @@ pub struct ChallengeProviderServiceConfig {
     pub base_url: String,
     pub api_url: String,
     pub api_key: String,
-    pub service_type: ChallengeProviderServiceTypes
+    pub service_type: ChallengeProviderServiceTypes,
 }
 
 pub struct CTFDService {

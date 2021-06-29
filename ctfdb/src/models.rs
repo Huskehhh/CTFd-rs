@@ -33,3 +33,20 @@ pub struct Scoreboard {
     pub position: String,
     pub entry_time: NaiveDateTime,
 }
+
+
+#[derive(Debug, Queryable, Clone)]
+pub struct HTBChallenge {
+    pub id: i32,
+    pub htb_id: i32,
+    pub name: String,
+    pub difficulty: String,
+    pub points: bool,
+    pub release_date: String,
+    pub challenge_category: i32,
+    pub working: Option<String>,
+    pub solved: bool,
+    pub solver: Option<String>,
+    pub solve_time: Option<NaiveDateTime>,
+    pub announced_solve: bool,
+}
