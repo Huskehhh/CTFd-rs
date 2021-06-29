@@ -1,14 +1,9 @@
-use std::time::Duration;
-
 use failure::Error;
-use reqwest::{
-    header::{HeaderMap, HeaderValue},
-    ClientBuilder,
-};
 
 use async_trait::async_trait;
 
 use crate::{
+    create_reqwest_client,
     ctfs::{
         db::get_ctf_id_from_name,
         structs::{
@@ -23,23 +18,7 @@ use crate::{
 pub async fn new_ctfdservice(
     config: ChallengeProviderServiceConfig,
 ) -> Box<dyn ChallengeProvider + Send + Sync> {
-    let mut headers = HeaderMap::new();
-
-    let auth_header = HeaderValue::from_str(&format!("Token {}", &config.api_key))
-        .expect("Error creating auth header for new ctfd service");
-
-    let content_type_header = HeaderValue::from_str("application/json")
-        .expect("Error when creating content type header for new ctfd service");
-
-    headers.insert("Authorization", auth_header);
-    headers.insert("Content-Type", content_type_header);
-
-    let client = ClientBuilder::new()
-        .timeout(Duration::from_secs(5))
-        .cookie_store(true)
-        .default_headers(headers)
-        .build()
-        .expect("Error when creating reqwest client");
+    let client = create_reqwest_client(&config.api_key);
 
     let ctf_id = get_ctf_id_from_name(&config.name)
         .await

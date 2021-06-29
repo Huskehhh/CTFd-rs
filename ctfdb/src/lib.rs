@@ -4,9 +4,15 @@ extern crate diesel;
 extern crate failure;
 
 use async_trait::async_trait;
-use ctfs::structs::{ChallengeResponse, MyTeamResponseData, TeamSolvesResponseData, UserResponseData};
+use ctfs::structs::{
+    ChallengeResponse, MyTeamResponseData, TeamSolvesResponseData, UserResponseData,
+};
+use reqwest::{
+    header::{HeaderMap, HeaderValue},
+    Client, ClientBuilder,
+};
 
-use std::{env, sync::Arc};
+use std::{env, sync::Arc, time::Duration};
 
 use async_rwlock::RwLock;
 use diesel::{
@@ -41,6 +47,26 @@ async fn get_pooled_connection() -> Result<PooledMysqlConnection, Error> {
     let lock = &DB.read().await;
     let connection = lock.get()?;
     Ok(connection)
+}
+
+pub fn create_reqwest_client(api_key: &str) -> Client {
+    let mut headers = HeaderMap::new();
+
+    let auth_header = HeaderValue::from_str(&format!("Token {}", &api_key))
+        .expect("Error creating auth header for new ctfd service");
+
+    let content_type_header = HeaderValue::from_str("application/json")
+        .expect("Error when creating content type header for new htb api instance");
+
+    headers.insert("Authorization", auth_header);
+    headers.insert("Content-Type", content_type_header);
+
+    ClientBuilder::new()
+        .timeout(Duration::from_secs(5))
+        .cookie_store(true)
+        .default_headers(headers)
+        .build()
+        .expect("Error when creating reqwest client")
 }
 
 #[async_trait]

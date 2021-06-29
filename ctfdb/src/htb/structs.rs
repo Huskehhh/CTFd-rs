@@ -60,7 +60,7 @@ pub struct ListActiveChallengesData {
     pub id: i32,
     pub name: String,
     pub difficulty: String,
-    pub points: String, // Double check this...
+    pub points: String, // TODO Double check this...
     pub release_date: String,
     pub challenge_category: i32,
 }

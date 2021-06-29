@@ -1,34 +1,13 @@
-use std::time::Duration;
-
 use failure::Error;
-use reqwest::{
-    header::{HeaderMap, HeaderValue},
-    ClientBuilder,
-};
+
+use crate::create_reqwest_client;
 
 use super::structs::*;
 
 pub static API_URL: &str = "https://www.hackthebox.eu/api/v4";
 
 pub async fn new_htbapi_instance(config: HTBAPIConfig) -> HTBApi {
-    let mut headers = HeaderMap::new();
-
-    let auth_header = HeaderValue::from_str(&format!("Token {}", &config.api_key))
-        .expect("Error creating auth header for new ctfd service");
-
-    let content_type_header = HeaderValue::from_str("application/json")
-        .expect("Error when creating content type header for new ctfd service");
-
-    headers.insert("Authorization", auth_header);
-    headers.insert("Content-Type", content_type_header);
-
-    let client = ClientBuilder::new()
-        .timeout(Duration::from_secs(5))
-        .cookie_store(true)
-        .default_headers(headers)
-        .build()
-        .expect("Error when creating reqwest client");
-
+    let client = create_reqwest_client(&config.api_key);
     HTBApi { config, client }
 }
 
