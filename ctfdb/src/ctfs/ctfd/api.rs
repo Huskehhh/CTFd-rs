@@ -8,17 +8,21 @@ use reqwest::{
 
 use async_trait::async_trait;
 
-use crate::{ChallengeProvider, ctfd::{db::get_ctf_id_from_name, structs::{
-        CTFDService, GetChallengesResponse, GetTeamSolvesResponse, GetUserByIdResponse,
-        MyTeamResponse,
-    }}};
-
-use super::structs::{
-    ChallengeProviderServiceConfig, ChallengeResponse, MyTeamResponseData, TeamSolvesResponseData,
-    UserResponseData,
+use crate::{
+    ctfs::{
+        db::get_ctf_id_from_name,
+        structs::{
+            CTFDService, ChallengeProviderServiceConfig, ChallengeResponse, GetChallengesResponse,
+            GetTeamSolvesResponse, GetUserByIdResponse, MyTeamResponse, MyTeamResponseData,
+            TeamSolvesResponseData, UserResponseData,
+        },
+    },
+    ChallengeProvider,
 };
 
-pub async fn new_ctfdservice(config: ChallengeProviderServiceConfig) -> Box<dyn ChallengeProvider + Send + Sync> {
+pub async fn new_ctfdservice(
+    config: ChallengeProviderServiceConfig,
+) -> Box<dyn ChallengeProvider + Send + Sync> {
     let mut headers = HeaderMap::new();
 
     let auth_header = HeaderValue::from_str(&format!("Token {}", &config.api_key))

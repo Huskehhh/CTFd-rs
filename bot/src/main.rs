@@ -8,7 +8,7 @@ use std::{
     time::Duration,
 };
 
-use ctfdb::ctfd::db::{add_active_ctf, add_working, get_active_ctfs, get_challenges_for_ctfname, get_latest_scoreboard_status, initial_load_tasks, remove_active_ctf, remove_working, search_for_challenge_by_name};
+use ctfdb::ctfs::db::{add_active_ctf, add_working, get_active_ctfs, get_challenges_for_ctfname, get_latest_scoreboard_status, initial_load_tasks, remove_active_ctf, remove_working, search_for_challenge_by_name};
 use dotenv::dotenv;
 use serenity::framework::standard::{
     help_commands, macros::*, Args, CommandGroup, CommandResult, DispatchError, HelpOptions,

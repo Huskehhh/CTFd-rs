@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate failure;
 
-use ctfdb::{ChallengeProvider, ctfd::db::{CTFD_CACHE, check_for_new_solves, get_active_ctfs, get_and_store_scoreboard, mark_solved, update_challenges_and_scores}, models::Challenge};
+use ctfdb::{ChallengeProvider, ctfs::db::{CTFD_CACHE, check_for_new_solves, get_active_ctfs, get_and_store_scoreboard, mark_solved, update_challenges_and_scores}, models::Challenge};
 use failure::Error;
 use serenity::{
     builder::CreateEmbed, framework::standard::CommandResult, http::Http, model::id::ChannelId,

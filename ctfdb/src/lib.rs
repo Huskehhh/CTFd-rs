@@ -4,13 +4,11 @@ extern crate diesel;
 extern crate failure;
 
 use async_trait::async_trait;
+use ctfs::structs::{ChallengeResponse, MyTeamResponseData, TeamSolvesResponseData, UserResponseData};
 
 use std::{env, sync::Arc};
 
 use async_rwlock::RwLock;
-use ctfd::structs::{
-    ChallengeResponse, MyTeamResponseData, TeamSolvesResponseData, UserResponseData,
-};
 use diesel::{
     r2d2::{self, ConnectionManager},
     MysqlConnection,
@@ -20,7 +18,7 @@ use once_cell::sync::Lazy;
 
 use crate::r2d2::PooledConnection;
 
-pub mod ctfd;
+pub mod ctfs;
 pub mod htb;
 pub mod models;
 pub mod schema;

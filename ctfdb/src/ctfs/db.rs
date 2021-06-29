@@ -11,7 +11,7 @@ use crate::schema::ctfs::dsl as ctf_dsl;
 use crate::schema::scoreboard::dsl as scoreboard_dsl;
 use crate::{get_pooled_connection, ChallengeProvider, PooledMysqlConnection};
 
-use super::api::*;
+use super::ctfd::api::*;
 use super::structs::*;
 
 pub type ChallengeProviderService = Box<dyn ChallengeProvider + Send + Sync>;
