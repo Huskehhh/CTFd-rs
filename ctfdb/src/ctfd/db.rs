@@ -5,16 +5,18 @@ use diesel::{insert_into, update, MysqlConnection, QueryDsl, RunQueryDsl};
 use failure::Error;
 use once_cell::sync::Lazy;
 
-use crate::{PooledMysqlConnection, get_pooled_connection};
 use crate::models::{Challenge, Ctf, Scoreboard};
 use crate::schema::challenges::dsl as chall_dsl;
 use crate::schema::ctfs::dsl as ctf_dsl;
 use crate::schema::scoreboard::dsl as scoreboard_dsl;
+use crate::{get_pooled_connection, ChallengeProvider, PooledMysqlConnection};
 
 use super::api::*;
 use super::structs::*;
 
-pub static CTFD_CACHE: Lazy<DashMap<i32, CTFDService>> = Lazy::new(DashMap::new);
+pub type ChallengeProviderService = Box<dyn ChallengeProvider + Send + Sync>;
+
+pub static CTFD_CACHE: Lazy<DashMap<i32, ChallengeProviderService>> = Lazy::new(DashMap::new);
 
 pub async fn get_active_ctfs() -> Result<Vec<Ctf>, Error> {
     let connection = get_pooled_connection().await?;
@@ -44,33 +46,39 @@ pub async fn add_active_ctf(
         ))
         .execute(&connection)?;
 
-    let service_config = CTFDServiceConfig {
+    let service_config = ChallengeProviderServiceConfig {
         name: name.to_string(),
         base_url: base_url.to_string(),
         api_url: api_url.to_string(),
         api_key: api_key.to_string(),
+        service_type: ChallengeProviderServiceTypes::Ctfd, // Default as CTFD for now...
     };
 
-    // Create & cache ctdservice
-    let ctfdservice = new_ctfdservice(service_config).await;
+    // Create & cache challenge provider service
+    let challenge_provider_service = new_ctfdservice(service_config).await;
 
     // Create & cache all challenges
-    initial_create_all_challenges_in_db(&ctfdservice).await?;
+    initial_create_all_challenges_in_db(&challenge_provider_service).await?;
 
-    CTFD_CACHE.insert(ctfdservice.id, ctfdservice);
+    CTFD_CACHE.insert(
+        challenge_provider_service.get_id(),
+        challenge_provider_service,
+    );
 
     Ok(())
 }
 
-pub async fn initial_create_all_challenges_in_db(ctfd_service: &CTFDService) -> Result<(), Error> {
+pub async fn initial_create_all_challenges_in_db(
+    challenge_provider: &ChallengeProviderService,
+) -> Result<(), Error> {
     let connection = get_pooled_connection().await?;
 
-    let challenges = ctfd_service.get_challenges().await?;
+    let challenges = challenge_provider.get_challenges().await?;
     for challenge in challenges {
         insert_into(chall_dsl::challenges)
             .values((
                 chall_dsl::category.eq(challenge.category),
-                chall_dsl::ctf_id.eq(ctfd_service.id),
+                chall_dsl::ctf_id.eq(challenge_provider.get_id()),
                 chall_dsl::name.eq(challenge.name),
                 chall_dsl::points.eq(challenge.value),
                 chall_dsl::solved.eq(false),
@@ -306,17 +314,18 @@ async fn load_active_ctfdservices() -> Result<(), Error> {
 
     // Load all active ctfs, transpose to service config and then load to cache
     for ctf in active_ctfs {
-        let service_config = CTFDServiceConfig {
+        let service_config = ChallengeProviderServiceConfig {
             name: ctf.name,
             base_url: ctf.base_url,
             api_url: ctf.api_url,
             api_key: ctf.api_key,
+            service_type: ChallengeProviderServiceTypes::Ctfd, // Default as CTFd for now...
         };
 
         let service = new_ctfdservice(service_config).await;
 
         // Insert to cache
-        CTFD_CACHE.insert(service.id, service);
+        CTFD_CACHE.insert(service.get_id(), service);
     }
 
     Ok(())
@@ -335,7 +344,7 @@ pub async fn check_for_new_solves(ctf: &Ctf) -> Result<Vec<Challenge>, Error> {
 
         for solve in fresh_data {
             let mut challenge =
-                map_response_to_challenge(&connection, &solve, ctfdservice.id).await?;
+                map_response_to_challenge(&connection, &solve, ctfdservice.get_id()).await?;
 
             if !challenge.announced_solve {
                 let solved_time =
@@ -356,17 +365,23 @@ pub async fn check_for_new_solves(ctf: &Ctf) -> Result<Vec<Challenge>, Error> {
     ))
 }
 
-pub async fn update_challenges_and_scores(ctfd_service: &CTFDService) -> Result<(), Error> {
+pub async fn update_challenges_and_scores(
+    challenge_provider: &ChallengeProviderService,
+) -> Result<(), Error> {
     let connection = get_pooled_connection().await?;
 
-    let challenges = ctfd_service.get_challenges().await?;
+    let challenges = challenge_provider.get_challenges().await?;
     for challenge in challenges {
-        let is_new =
-            ensure_challenge_exists_otherwise_add(&challenge, ctfd_service.id, &connection).await?;
+        let is_new = ensure_challenge_exists_otherwise_add(
+            &challenge,
+            challenge_provider.get_id(),
+            &connection,
+        )
+        .await?;
 
         if !is_new {
             update(chall_dsl::challenges)
-                .filter(chall_dsl::ctf_id.eq(ctfd_service.id))
+                .filter(chall_dsl::ctf_id.eq(challenge_provider.get_id()))
                 .filter(chall_dsl::name.eq(&challenge.name))
                 .filter(chall_dsl::category.eq(challenge.category))
                 .filter(chall_dsl::solved.eq(false))
@@ -405,13 +420,15 @@ pub async fn ensure_challenge_exists_otherwise_add(
     Ok(false)
 }
 
-pub async fn get_and_store_scoreboard(ctfd_service: &CTFDService) -> Result<(), Error> {
+pub async fn get_and_store_scoreboard(
+    challenge_provider: &ChallengeProviderService,
+) -> Result<(), Error> {
     let connection = get_pooled_connection().await?;
-    let team_stats = ctfd_service.team_stats().await?;
+    let team_stats = challenge_provider.team_stats().await?;
 
     insert_into(scoreboard_dsl::scoreboard)
         .values((
-            scoreboard_dsl::ctf_id.eq(ctfd_service.id),
+            scoreboard_dsl::ctf_id.eq(challenge_provider.get_id()),
             scoreboard_dsl::points.eq(team_stats.score),
             scoreboard_dsl::position.eq(team_stats.place),
         ))

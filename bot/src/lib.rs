@@ -1,15 +1,13 @@
 #[macro_use]
 extern crate failure;
 
-use ctfdb::ctfd::CTFDService;
-use ctfdb::{
-    check_for_new_solves, get_active_ctfs, get_and_store_scoreboard, mark_solved,
-    models::Challenge, update_challenges_and_scores, CTFD_CACHE,
-};
+use ctfdb::{ChallengeProvider, ctfd::db::{CTFD_CACHE, check_for_new_solves, get_active_ctfs, get_and_store_scoreboard, mark_solved, update_challenges_and_scores}, models::Challenge};
 use failure::Error;
 use serenity::{
     builder::CreateEmbed, framework::standard::CommandResult, http::Http, model::id::ChannelId,
 };
+
+pub type ChallengeProviderService = Box<dyn ChallengeProvider + Send + Sync>;
 
 pub fn populate_embed_from_challenge(challenge: Challenge, e: &mut CreateEmbed) {
     e.title(format!("❓ {} ❓", challenge.name));
@@ -57,7 +55,7 @@ pub async fn create_embed_of_challenge_solved(
 }
 
 async fn process_solve(
-    ctfd_service: &CTFDService,
+    ctfd_service: &ChallengeProviderService,
     solve: Challenge,
     channel_id: &ChannelId,
     http: &Http,
@@ -129,8 +127,8 @@ pub async fn new_solve_poller_task(http: &Http) {
 #[tokio::main]
 pub async fn scoreboard_and_scores_task() {
     for entry in CTFD_CACHE.iter() {
-        let ctfd_service = entry.value();
-        match get_and_store_scoreboard(ctfd_service).await {
+        let challenge_provider = entry.value();
+        match get_and_store_scoreboard(challenge_provider).await {
             Ok(_) => {
                 println!("Scoreboard stored successfully...");
             }
@@ -142,7 +140,7 @@ pub async fn scoreboard_and_scores_task() {
             }
         }
 
-        match update_challenges_and_scores(ctfd_service).await {
+        match update_challenges_and_scores(challenge_provider).await {
             Ok(_) => {
                 println!("Challenges & their scores updated successfully...");
             }

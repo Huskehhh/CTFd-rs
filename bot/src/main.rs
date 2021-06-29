@@ -8,6 +8,7 @@ use std::{
     time::Duration,
 };
 
+use ctfdb::ctfd::db::{add_active_ctf, add_working, get_active_ctfs, get_challenges_for_ctfname, get_latest_scoreboard_status, initial_load_tasks, remove_active_ctf, remove_working, search_for_challenge_by_name};
 use dotenv::dotenv;
 use serenity::framework::standard::{
     help_commands, macros::*, Args, CommandGroup, CommandResult, DispatchError, HelpOptions,
@@ -22,11 +23,6 @@ use serenity::{
 use serenity::{model::gateway::Ready, model::Permissions};
 
 use ctf_bot::{new_solve_poller_task, populate_embed_from_challenge, scoreboard_and_scores_task};
-use ctfdb::{
-    add_active_ctf, add_working, get_active_ctfs, get_challenges_for_channel,
-    get_challenges_for_ctfname, get_latest_scoreboard_status, initial_load_tasks,
-    remove_active_ctf, remove_working, search_for_challenge_by_name,
-};
 
 #[help]
 #[individual_command_tip = "If you want more information about a specific command, just pass the command as argument.\n Example: !help ctf list\n"]
@@ -60,7 +56,7 @@ impl EventHandler for Handler {
     async fn ready(&self, ctx: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
 
-        ctx.set_activity(Activity::playing("View at https://ctf.husk.pro/"))
+        ctx.set_activity(Activity::playing("https://ctf.husk.pro/"))
             .await;
 
         match ready.user.invite_url(&ctx.http, Permissions::empty()).await {
@@ -243,23 +239,9 @@ async fn giveup(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 #[example("\"CTF Name\"")]
 #[description = "Lists all challenges for given CTF, or defaults to checking for the active CTF in the current channel"]
 async fn list(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let mut challenges = vec![];
     if args.len() == 1 {
         let ctf_name = args.single_quoted::<String>()?;
-        challenges = get_challenges_for_ctfname(ctf_name).await?;
-    } else if args.is_empty() {
-        match get_challenges_for_channel(msg.channel_id.0 as i64).await {
-            Ok(challs) => {
-                challenges = challs;
-            }
-            Err(why) => {
-                eprintln!("Error when trying to get challenges for channel: {}", why);
-            }
-        }
-    }
-
-    if !challenges.is_empty() {
-        for challenge in challenges {
+        for challenge in get_challenges_for_ctfname(ctf_name).await? {
             msg.author
                 .dm(&ctx.http, |m| {
                     m.embed(|e| {
@@ -371,7 +353,9 @@ async fn main() {
         eprintln!("Error when running initial load tasks {}", why);
     }
 
-    let owner_id = owner_id_str.parse::<u64>().expect("Unable to parse OWNER_ID into u64... Did you put it in correctly?");
+    let owner_id = owner_id_str
+        .parse::<u64>()
+        .expect("Unable to parse OWNER_ID into u64... Did you put it in correctly?");
 
     let mut owners = HashSet::new();
     owners.insert(UserId(owner_id));

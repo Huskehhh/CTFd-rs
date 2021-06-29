@@ -3,9 +3,14 @@ extern crate diesel;
 #[macro_use]
 extern crate failure;
 
+use async_trait::async_trait;
+
 use std::{env, sync::Arc};
 
 use async_rwlock::RwLock;
+use ctfd::structs::{
+    ChallengeResponse, MyTeamResponseData, TeamSolvesResponseData, UserResponseData,
+};
 use diesel::{
     r2d2::{self, ConnectionManager},
     MysqlConnection,
@@ -38,4 +43,13 @@ async fn get_pooled_connection() -> Result<PooledMysqlConnection, Error> {
     let lock = &DB.read().await;
     let connection = lock.get()?;
     Ok(connection)
+}
+
+#[async_trait]
+pub trait ChallengeProvider {
+    fn get_id(&self) -> i32;
+    async fn get_challenges(&self) -> Result<Vec<ChallengeResponse>, Error>;
+    async fn get_team_solved_challenges(&self) -> Result<Vec<TeamSolvesResponseData>, Error>;
+    async fn user_from_id(&self, id: i32) -> Result<UserResponseData, Error>;
+    async fn team_stats(&self) -> Result<MyTeamResponseData, Error>;
 }

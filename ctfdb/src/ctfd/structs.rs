@@ -2,16 +2,21 @@ use reqwest::Client;
 use serde::Deserialize;
 
 #[derive(Debug)]
-pub struct CTFDServiceConfig {
+pub enum ChallengeProviderServiceTypes {
+    Ctfd,
+}
+#[derive(Debug)]
+pub struct ChallengeProviderServiceConfig {
     pub name: String,
     pub base_url: String,
     pub api_url: String,
     pub api_key: String,
+    pub service_type: ChallengeProviderServiceTypes
 }
 
 pub struct CTFDService {
     pub id: i32,
-    pub config: CTFDServiceConfig,
+    pub config: ChallengeProviderServiceConfig,
     pub client: Client,
 }
 
