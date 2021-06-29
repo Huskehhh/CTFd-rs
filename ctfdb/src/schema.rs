@@ -37,7 +37,7 @@ table! {
         working -> Nullable<Text>,
         solved -> Bool,
         solver -> Nullable<Text>,
-        solve_time -> Text,
+        solved_time -> Nullable<Datetime>,
         announced_solve -> Bool,
     }
 }

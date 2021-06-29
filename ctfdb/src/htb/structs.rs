@@ -11,12 +11,8 @@ pub struct GetTeamProfile {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct GetRecentTeamActivity {
-    pub data: Vec<GetRecentTeamActivityData>,
-}
-
-#[derive(Debug, Deserialize)]
 pub struct GetRecentTeamActivityData {
+    pub user: UserData,
     pub date: String,
     #[serde(rename = "type")]
     pub type_str: String,
@@ -25,6 +21,12 @@ pub struct GetRecentTeamActivityData {
     pub name: String,
     pub points: i32,
     pub challenge_category: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UserData {
+    pub name: String,
+    pub avatar_thumb: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -75,4 +77,59 @@ pub struct HTBAPIConfig {
 pub struct HTBApi {
     pub config: HTBAPIConfig,
     pub client: Client,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_deserialise_recent_activity() {
+        let data = r#"[
+    {
+        "user": {
+            "id": 66487,
+            "name": "wulfgarpro",
+            "public": 0,
+            "avatar_thumb": "\/storage\/avatars\/2c7844044ac404d3d6bf00ee3e572db6_thumb.png"
+        },
+        "date": "2021-06-24T22:25:48.000000Z",
+        "date_diff": "4 days ago",
+        "type": "challenge",
+        "first_blood": false,
+        "object_type": "challenge",
+        "id": 118,
+        "name": "Missing in Action",
+        "points": 3,
+        "challenge_category": "OSINT"
+    },
+    {
+        "user": {
+            "id": 66487,
+            "name": "wulfgarpro",
+            "public": 0,
+            "avatar_thumb": "\/storage\/avatars\/2c7844044ac404d3d6bf00ee3e572db6_thumb.png"
+        },
+        "date": "2021-06-18T11:55:53.000000Z",
+        "date_diff": "1 week ago",
+        "type": "root",
+        "first_blood": false,
+        "object_type": "machine",
+        "id": 315,
+        "name": "Ophiuchi",
+        "points": 30,
+        "machine_avatar": "\/storage\/avatars\/82b3289bbabf88da886bc9f45802ac17_thumb.png"
+    }
+    ]"#;
+
+        let recent_data: Vec<GetRecentTeamActivityData> = serde_json::from_str(data).unwrap();
+
+        assert_eq!(recent_data.len(), 2);
+        assert_eq!(recent_data[0].name, "Missing in Action".to_string());
+        assert_eq!(recent_data[0].user.name, "wulfgarpro".to_string());
+
+        assert_eq!(recent_data[1].name, "Ophiuchi".to_string());
+        assert_eq!(recent_data[1].object_type, "machine".to_string());
+        assert!(recent_data[1].challenge_category.is_none());
+    }
 }

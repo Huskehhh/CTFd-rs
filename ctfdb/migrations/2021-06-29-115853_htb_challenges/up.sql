@@ -9,7 +9,7 @@ CREATE TABLE `htb_challenges` (
     `working` TEXT NULL,
     `solved` BOOLEAN NOT NULL,
     `solver` TEXT NULL,
-    `solve_time` TEXT NOT NULL,
+    `solved_time` DATETIME NULL DEFAULT NULL,
     `announced_solve` BOOLEAN NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
