@@ -28,7 +28,7 @@ pub async fn map_htb_response_to_challenge(
     Err(format_err!("Failed to map challenge! {:#?}", challenge))
 }
 
-fn update_working(
+pub fn update_working(
     update_value: Option<&str>,
     challenge_id: i32,
     connection: &MysqlConnection,
