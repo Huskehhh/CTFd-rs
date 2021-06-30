@@ -1,0 +1,44 @@
+{
+    "info": [
+        {
+            "id": 1,
+            "name": "Reversing"
+        },
+        {
+            "id": 2,
+            "name": "Crypto"
+        },
+        {
+            "id": 3,
+            "name": "Stego"
+        },
+        {
+            "id": 4,
+            "name": "Pwn"
+        },
+        {
+            "id": 5,
+            "name": "Web"
+        },
+        {
+            "id": 6,
+            "name": "Misc"
+        },
+        {
+            "id": 7,
+            "name": "Forensics"
+        },
+        {
+            "id": 8,
+            "name": "Mobile"
+        },
+        {
+            "id": 9,
+            "name": "OSINT"
+        },
+        {
+            "id": 10,
+            "name": "Hardware"
+        }
+    ]
+}

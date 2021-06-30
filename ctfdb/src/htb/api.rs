@@ -66,4 +66,18 @@ impl HTBApi {
 
         Ok(team_members)
     }
+
+    pub async fn get_challenge_categories(&self) -> Result<ListChallengeCategories, Error> {
+        let url = format!("{}/challenge/categories/list", API_URL);
+
+        let challenge_categories = self
+            .client
+            .get(&url)
+            .send()
+            .await?
+            .json::<ListChallengeCategories>()
+            .await?;
+
+        Ok(challenge_categories)
+    }
 }
