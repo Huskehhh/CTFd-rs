@@ -18,6 +18,7 @@ pub async fn map_htb_response_to_challenge(
 ) -> Result<HTBChallenge, Error> {
     let result = htb_dsl::htb_challenges
         .filter(htb_dsl::htb_id.eq(challenge.id))
+        .filter(htb_dsl::name.eq(&challenge.name))
         .limit(1)
         .load::<HTBChallenge>(connection)?;
 
@@ -130,7 +131,7 @@ pub async fn remove_working(username: String, challenge_name: &str) -> Result<()
     Ok(())
 }
 
-pub async fn mark_solved(challenge: &HTBChallenge) -> Result<(), Error> {
+pub async fn mark_htb_solved(challenge: &HTBChallenge) -> Result<(), Error> {
     let connection = get_pooled_connection().await?;
 
     let challenge_id = challenge.id;

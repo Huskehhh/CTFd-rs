@@ -1,4 +1,8 @@
+use std::time::Duration;
+
 use failure::Error;
+use reqwest::{Client, ClientBuilder};
+use serde_json::json;
 
 use crate::create_reqwest_client;
 
@@ -6,9 +10,34 @@ use super::structs::*;
 
 pub static API_URL: &str = "https://www.hackthebox.eu/api/v4";
 
-pub async fn new_htbapi_instance(config: HTBAPIConfig) -> HTBApi {
-    let client = create_reqwest_client(&config.api_key);
-    HTBApi { config, client }
+pub async fn new_htbapi_instance(config: HTBAPIConfig) -> Result<HTBApi, Error> {
+    let login_client = ClientBuilder::new()
+        .timeout(Duration::from_secs(5))
+        .build()
+        .expect("Error when creating login reqwest client");
+
+    let token = login_and_get_token(&config, &login_client).await?;
+
+    let client = create_reqwest_client(&token, "Bearer");
+
+    Ok(HTBApi { config, client })
+}
+
+async fn login_and_get_token(config: &HTBAPIConfig, client: &Client) -> Result<String, Error> {
+    let url = format!("{}/login", API_URL);
+
+    let login_post_data =
+        json!({"email": config.email, "password": config.password, "remember": true});
+
+    let login_response = client
+        .post(&url)
+        .json(&login_post_data)
+        .send()
+        .await?
+        .json::<LoginResponse>()
+        .await?;
+
+    Ok(login_response.message.access_token)
 }
 
 impl HTBApi {

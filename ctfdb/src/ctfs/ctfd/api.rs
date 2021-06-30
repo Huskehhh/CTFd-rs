@@ -18,7 +18,7 @@ use crate::{
 pub async fn new_ctfdservice(
     config: ChallengeProviderServiceConfig,
 ) -> Box<dyn ChallengeProvider + Send + Sync> {
-    let client = create_reqwest_client(&config.api_key);
+    let client = create_reqwest_client(&config.api_key, "Token");
 
     let ctf_id = get_ctf_id_from_name(&config.name)
         .await

@@ -1,18 +1,10 @@
 #[macro_use]
 extern crate failure;
 
-use ctfdb::{
-    ctfs::db::{
+use ctfdb::{ChallengeProvider, ctfs::db::{
         check_for_new_solves, get_active_ctfs, get_and_store_scoreboard, mark_solved,
         update_challenges_and_scores, CTF_CACHE,
-    },
-    htb::{
-        db::{get_new_solves, update_htb_challenges_and_scores, CATEGORY_CACHE},
-        structs::HTBApi,
-    },
-    models::{Challenge, HTBChallenge},
-    ChallengeProvider,
-};
+    }, htb::{db::{CATEGORY_CACHE, get_new_solves, mark_htb_solved, update_htb_challenges_and_scores}, structs::HTBApi}, models::{Challenge, HTBChallenge}};
 use failure::Error;
 use serenity::{
     builder::CreateEmbed, framework::standard::CommandResult, http::Http, model::id::ChannelId,
@@ -37,13 +29,10 @@ pub fn populate_embed_from_challenge(challenge: Challenge, e: &mut CreateEmbed) 
 }
 
 pub fn populate_embed_from_htb_challenge(challenge: HTBChallenge, e: &mut CreateEmbed) {
-    let challenge_category = match CATEGORY_CACHE.get(&challenge.challenge_category) {
-        Some(cached) => cached.value().clone(),
-        None => "Unknown".to_string(),
-    };
+    let challenge_category_name = get_challenge_category_from_id(challenge.challenge_category);
 
     e.title(format!("❓ {} ❓", challenge.name));
-    e.field("📚 Category", &challenge_category, true);
+    e.field("📚 Category", &challenge_category_name, true);
     e.field("💰 Points", challenge.points, true);
 
     if challenge.working.is_some() {
@@ -52,6 +41,13 @@ pub fn populate_embed_from_htb_challenge(challenge: HTBChallenge, e: &mut Create
 
     if challenge.solved && challenge.solver.is_some() {
         e.field("🏴‍ Solved", challenge.solver.unwrap(), true);
+    }
+}
+
+pub fn get_challenge_category_from_id(challenge_category_id: i32) -> String {
+    match CATEGORY_CACHE.get(&challenge_category_id) {
+        Some(cached) => cached.value().clone(),
+        None => "Unknown".to_string(),
     }
 }
 
@@ -77,6 +73,32 @@ pub async fn create_embed_of_challenge_solved(
                     scoreboard_position, score
                 ));
                 e.field("📚 Category", &challenge.category, true);
+                e.field("💰 Points", &challenge.points, true);
+                e
+            })
+        })
+        .await?;
+
+    Ok(())
+}
+
+pub async fn create_embed_of_htb_challenge_solved(
+    challenge: &HTBChallenge,
+    channel_id: &ChannelId,
+    http: &Http,
+) -> CommandResult {
+    // This should never not be populated
+    let solver_name = challenge.solver.as_ref().unwrap();
+    let challenge_category_name = get_challenge_category_from_id(challenge.challenge_category);
+
+    channel_id
+        .send_message(http, |message| {
+            message.embed(|e| {
+                e.title(format!(
+                    "🏴‍ {} has been solved by {} 🏴‍",
+                    challenge.name, solver_name
+                ));
+                e.field("📚 Category", &challenge_category_name, true);
                 e.field("💰 Points", &challenge.points, true);
                 e
             })
@@ -114,6 +136,27 @@ async fn process_solve(
 
     // If it makes it to this point, it will mark it as 'announced_solved' which basically means "processed"
     mark_solved(&solve).await?;
+
+    Ok(())
+}
+
+async fn process_htb_solve(
+    solve: HTBChallenge,
+    channel_id: &ChannelId,
+    http: &Http,
+) -> Result<(), Error> {
+    // Only try to create an embed if the channel ID isn't 0
+    if channel_id.0 != 0 {
+        if let Err(why) = create_embed_of_htb_challenge_solved(&solve, &channel_id, http).await {
+            return Err(format_err!(
+                "Error when creating embed for challenge solve: {}",
+                why
+            ));
+        }
+    }
+
+    // If it makes it to this point, it will mark it as 'announced_solved' which basically means "processed"
+    mark_htb_solved(&solve).await?;
 
     Ok(())
 }
@@ -184,8 +227,31 @@ pub async fn scoreboard_and_scores_task() {
 }
 
 #[tokio::main]
-pub async fn htb_poller_task(htb_api: &HTBApi) -> Result<(), Error> {
-    get_new_solves(htb_api).await?;
+pub async fn htb_poller_task(htb_api: &HTBApi, http: &Http, channel_id: &ChannelId) -> Result<(), Error> {
     update_htb_challenges_and_scores(htb_api).await?;
+    let solves = get_new_solves(htb_api).await;
+
+    match solves {
+        Ok(solves) => {
+            if solves.is_empty() {
+                println!("HTB POLLER: No new solves found for HTB.");
+            } else {
+                for solve in solves {
+                    match process_htb_solve(solve, &channel_id, http).await {
+                        Ok(_) => {
+                            println!("HTB POLLER: New solve processed.");
+                            break;
+                        }
+                        Err(why) => {
+                            eprintln!("Error when processing HTB solve... {}", why);
+                        }
+                    }
+                }
+            }
+        }
+        Err(why) => {
+            eprintln!("HTB POLLER: Error when fetching new solves {}", why);
+        }
+    }
     Ok(())
 }

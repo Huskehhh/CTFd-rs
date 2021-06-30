@@ -49,10 +49,10 @@ async fn get_pooled_connection() -> Result<PooledMysqlConnection, Error> {
     Ok(connection)
 }
 
-pub fn create_reqwest_client(api_key: &str) -> Client {
+pub fn create_reqwest_client(api_key: &str, token_type: &str) -> Client {
     let mut headers = HeaderMap::new();
 
-    let auth_header = HeaderValue::from_str(&format!("Token {}", &api_key))
+    let auth_header = HeaderValue::from_str(&format!("{} {}", token_type, &api_key))
         .expect("Error creating auth header for new ctfd service");
 
     let content_type_header = HeaderValue::from_str("application/json")

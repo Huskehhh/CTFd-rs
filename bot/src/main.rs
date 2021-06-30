@@ -17,12 +17,15 @@ use ctfdb::{
     htb::{api::new_htbapi_instance, db::load_categories_to_cache, structs::HTBAPIConfig},
 };
 use dotenv::dotenv;
-use serenity::framework::standard::{macros::*, DispatchError};
 use serenity::framework::StandardFramework;
 use serenity::model::channel::Message;
 use serenity::{
     client::Context,
     framework::standard::{help_commands, Args, CommandGroup, CommandResult, HelpOptions},
+};
+use serenity::{
+    framework::standard::{macros::*, DispatchError},
+    model::id::ChannelId,
 };
 use serenity::{http::Http, model::id::UserId, Client};
 
@@ -129,6 +132,9 @@ async fn main() {
         .await
         .expect("Error creating client");
 
+    // Copy the token so we can use it for HTB as well
+    let token_copy = token.clone();
+
     thread::spawn(move || {
         let http = Http::new_with_token(&token);
         loop {
@@ -149,23 +155,39 @@ async fn main() {
         .parse::<i32>()
         .expect("HTB_TEAM_ID isn't a number!");
 
-    let api_key = env::var("HTB_API_KEY").expect("No HTB_API_KEY environment variable found!");
+    let email = env::var("HTB_EMAIL").expect("No HTB_EMAIL environment variable found!");
+    let pass = env::var("HTB_PASSWORD").expect("No HTB_PASSWORD environment variable found!");
+    let htb_channel_id = env::var("HTB_CHANNEL_ID")
+        .expect("No HTB_CHANNEL_ID environment variable found!")
+        .parse::<u64>()
+        .expect("HTB_CHANNEL_ID environment variable was unable to be parsed to a u64...");
 
-    let htb_config = HTBAPIConfig { team_id, api_key };
-    let htb_api = new_htbapi_instance(htb_config).await;
+    let htb_config = HTBAPIConfig {
+        email,
+        password: pass,
+        team_id,
+    };
 
-    thread::spawn(move || {
-        if let Err(why) = load_categories_to_cache(&htb_api) {
-            eprintln!("Error loading categories to cache... {}", why);
+    match new_htbapi_instance(htb_config).await {
+        Ok(htb_api) => {
+            thread::spawn(move || {
+                let http = Http::new_with_token(&token_copy);
+                let channel_id = ChannelId(htb_channel_id);
+
+                if let Err(why) = load_categories_to_cache(&htb_api) {
+                    eprintln!("Error loading categories to cache... {}", why);
+                }
+
+                loop {
+                    if let Err(why) = htb_poller_task(&htb_api, &http, &channel_id) {
+                        eprintln!("Error in HTB polling service... {}", why);
+                    }
+                    sleep(Duration::from_secs(60));
+                }
+            });
         }
-
-        loop {
-            if let Err(why) = htb_poller_task(&htb_api) {
-                eprintln!("Error in HTB polling service... {}", why);
-            }
-            sleep(Duration::from_secs(60));
-        }
-    });
+        Err(why) => eprintln!("Error when creating HTBApi instance... {}", why),
+    }
 
     if let Err(why) = client.start().await {
         eprintln!("Client error: {:?}", why);

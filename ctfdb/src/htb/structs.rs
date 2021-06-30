@@ -78,10 +78,21 @@ pub struct ListChallengeCategoriesData {
     pub name: String,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct LoginResponse {
+    pub message: LoginResponseData,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct LoginResponseData {
+    pub access_token: String,
+}
+
 #[derive(Debug)]
 pub struct HTBAPIConfig {
+    pub email: String,
+    pub password: String,
     pub team_id: i32,
-    pub api_key: String,
 }
 
 #[derive(Debug)]
@@ -140,5 +151,14 @@ mod tests {
         assert_ne!(categories.len(), 0);
         assert_eq!(categories[0].id, 1);
         assert_eq!(categories[0].name, "Reversing");
+    }
+
+    #[test]
+    fn test_deserialise_login_response() {
+        let data = read_file_to_string("login_response.json");
+
+        let login_response: LoginResponse = serde_json::from_str(&data).unwrap();
+
+        assert_eq!(login_response.message.access_token, "abcd");
     }
 }
