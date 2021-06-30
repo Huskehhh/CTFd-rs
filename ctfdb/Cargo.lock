@@ -616,7 +616,12 @@ dependencies = [
 [[package]]
 name = "mysqlclient-sys"
 version = "0.2.4"
-source = "git+https://github.com/pzmarzly/mysqlclient-sys?rev=acd1b2b#acd1b2bc2371c82018b516880932f484957c5721"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7e9637d93448044078aaafea7419aed69d301b4a12bcc4aa0ae856eb169bef85"
+dependencies = [
+ "pkg-config",
+ "vcpkg",
+]
 
 [[package]]
 name = "native-tls"

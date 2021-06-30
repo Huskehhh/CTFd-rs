@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 dotenv = "0.15"
 failure = "0.1"
-ctfdb = { path = "../ctfdb" }
+ctfdb = { path="../ctfdb" }
 
 [dependencies.serenity]
 version = "0.10"
@@ -25,7 +25,3 @@ features = [
 [dependencies.tokio]
 version = "1"
 features = ["full"]
-
-# For static compilation
-[patch.crates-io]
-mysqlclient-sys = { git = "https://github.com/pzmarzly/mysqlclient-sys", rev = "acd1b2b" }
