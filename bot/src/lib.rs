@@ -1,17 +1,38 @@
 #[macro_use]
 extern crate failure;
 
-use ctfdb::{ChallengeProvider, ctfs::db::{CTF_CACHE, check_for_new_solves, get_active_ctfs, get_and_store_scoreboard, mark_solved, update_challenges_and_scores}, models::Challenge};
+use ctfdb::{ChallengeProvider, ctfs::db::{CTF_CACHE, check_for_new_solves, get_active_ctfs, get_and_store_scoreboard, mark_solved, update_challenges_and_scores}, htb::db::CATEGORY_CACHE, models::{Challenge, HTBChallenge}};
 use failure::Error;
 use serenity::{
     builder::CreateEmbed, framework::standard::CommandResult, http::Http, model::id::ChannelId,
 };
+
+pub mod commands;
 
 pub type ChallengeProviderService = Box<dyn ChallengeProvider + Send + Sync>;
 
 pub fn populate_embed_from_challenge(challenge: Challenge, e: &mut CreateEmbed) {
     e.title(format!("❓ {} ❓", challenge.name));
     e.field("📚 Category", &challenge.category, true);
+    e.field("💰 Points", challenge.points, true);
+
+    if challenge.working.is_some() {
+        e.field("🧰 Working", challenge.working.unwrap(), true);
+    }
+
+    if challenge.solved && challenge.solver.is_some() {
+        e.field("🏴‍ Solved", challenge.solver.unwrap(), true);
+    }
+}
+
+pub fn populate_embed_from_htb_challenge(challenge: HTBChallenge, e: &mut CreateEmbed) {
+    let challenge_category = match CATEGORY_CACHE.get(&challenge.challenge_category) {
+        Some(cached) => cached.value().clone(),
+        None => "Unknown".to_string(),
+    };
+
+    e.title(format!("❓ {} ❓", challenge.name));
+    e.field("📚 Category", &challenge_category, true);
     e.field("💰 Points", challenge.points, true);
 
     if challenge.working.is_some() {
