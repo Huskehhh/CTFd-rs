@@ -170,7 +170,7 @@ pub async fn get_new_solves(api: &HTBApi) -> Result<Vec<HTBChallenge>, Error> {
     Ok(new_solves)
 }
 
-pub async fn update_challenges_and_scores(htb_api: &HTBApi) -> Result<(), Error> {
+pub async fn update_htb_challenges_and_scores(htb_api: &HTBApi) -> Result<(), Error> {
     let connection = get_pooled_connection().await?;
 
     let challenges = htb_api.list_active_challenges().await?;
@@ -212,7 +212,8 @@ pub async fn ensure_challenge_exists_otherwise_add(
     Ok(false)
 }
 
-async fn load_categories_to_cache(htb_api: &HTBApi) -> Result<(), Error> {
+#[tokio::main]
+pub async fn load_categories_to_cache(htb_api: &HTBApi) -> Result<(), Error> {
     let challenge_categories_response = htb_api.get_challenge_categories().await?;
 
     for category in challenge_categories_response.info {

@@ -9,14 +9,21 @@ use std::{
 };
 
 use ctf_bot::{
-    commands::ctf::*, commands::htb::*, new_solve_poller_task, scoreboard_and_scores_task,
+    commands::ctf::*, commands::htb::*, htb_poller_task, new_solve_poller_task,
+    scoreboard_and_scores_task,
 };
-use ctfdb::ctfs::db::initial_load_tasks;
+use ctfdb::{
+    ctfs::db::initial_load_tasks,
+    htb::{api::new_htbapi_instance, db::load_categories_to_cache, structs::HTBAPIConfig},
+};
 use dotenv::dotenv;
-use serenity::{client::Context, framework::standard::{Args, CommandGroup, CommandResult, HelpOptions, help_commands}};
 use serenity::framework::standard::{macros::*, DispatchError};
 use serenity::framework::StandardFramework;
 use serenity::model::channel::Message;
+use serenity::{
+    client::Context,
+    framework::standard::{help_commands, Args, CommandGroup, CommandResult, HelpOptions},
+};
 use serenity::{http::Http, model::id::UserId, Client};
 
 use serenity::async_trait;
@@ -133,6 +140,31 @@ async fn main() {
     thread::spawn(move || loop {
         scoreboard_and_scores_task();
         sleep(Duration::from_secs(60));
+    });
+
+    // Load all required values for HTB API
+
+    let team_id = env::var("HTB_TEAM_ID")
+        .expect("No HTB_TEAM_ID environment variable found!")
+        .parse::<i32>()
+        .expect("HTB_TEAM_ID isn't a number!");
+
+    let api_key = env::var("HTB_API_KEY").expect("No HTB_API_KEY environment variable found!");
+
+    let htb_config = HTBAPIConfig { team_id, api_key };
+    let htb_api = new_htbapi_instance(htb_config).await;
+
+    thread::spawn(move || {
+        if let Err(why) = load_categories_to_cache(&htb_api) {
+            eprintln!("Error loading categories to cache... {}", why);
+        }
+
+        loop {
+            if let Err(why) = htb_poller_task(&htb_api) {
+                eprintln!("Error in HTB polling service... {}", why);
+            }
+            sleep(Duration::from_secs(60));
+        }
     });
 
     if let Err(why) = client.start().await {

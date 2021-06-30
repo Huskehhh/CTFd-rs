@@ -1,7 +1,18 @@
 #[macro_use]
 extern crate failure;
 
-use ctfdb::{ChallengeProvider, ctfs::db::{CTF_CACHE, check_for_new_solves, get_active_ctfs, get_and_store_scoreboard, mark_solved, update_challenges_and_scores}, htb::db::CATEGORY_CACHE, models::{Challenge, HTBChallenge}};
+use ctfdb::{
+    ctfs::db::{
+        check_for_new_solves, get_active_ctfs, get_and_store_scoreboard, mark_solved,
+        update_challenges_and_scores, CTF_CACHE,
+    },
+    htb::{
+        db::{get_new_solves, update_htb_challenges_and_scores, CATEGORY_CACHE},
+        structs::HTBApi,
+    },
+    models::{Challenge, HTBChallenge},
+    ChallengeProvider,
+};
 use failure::Error;
 use serenity::{
     builder::CreateEmbed, framework::standard::CommandResult, http::Http, model::id::ChannelId,
@@ -170,4 +181,11 @@ pub async fn scoreboard_and_scores_task() {
             }
         }
     }
+}
+
+#[tokio::main]
+pub async fn htb_poller_task(htb_api: &HTBApi) -> Result<(), Error> {
+    get_new_solves(htb_api).await?;
+    update_htb_challenges_and_scores(htb_api).await?;
+    Ok(())
 }
