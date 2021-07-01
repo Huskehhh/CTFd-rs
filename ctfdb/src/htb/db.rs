@@ -303,7 +303,7 @@ pub fn is_challenge_solved_and_not_announced_for_user(
     if let Ok(solves) = htb_solve_dsl::htb_solves
         .filter(htb_solve_dsl::user_id.eq(user_id))
         .filter(htb_solve_dsl::challenge_id.eq(challenge_id))
-        .filter(htb_solve_dsl::announced.eq(false))
+        .filter(htb_solve_dsl::announced.eq(true))
         .limit(1)
         .load::<HTBSolve>(connection)
     {

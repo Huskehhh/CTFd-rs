@@ -18,6 +18,7 @@ use ctfdb::{
     ChallengeProvider,
 };
 use failure::Error;
+use futures::executor::block_on;
 use serenity::{
     builder::CreateEmbed, framework::standard::CommandResult, http::Http, model::id::ChannelId,
 };
@@ -40,8 +41,7 @@ pub fn populate_embed_from_challenge(challenge: Challenge, e: &mut CreateEmbed) 
     }
 }
 
-#[tokio::main]
-pub async fn populate_embed_from_htb_challenge(challenge: HTBChallenge, e: &mut CreateEmbed) {
+pub fn populate_embed_from_htb_challenge(challenge: HTBChallenge, e: &mut CreateEmbed) {
     let challenge_category_name = get_challenge_category_from_id(challenge.challenge_category);
 
     e.title(format!("❓ {} ❓", challenge.name));
@@ -52,7 +52,7 @@ pub async fn populate_embed_from_htb_challenge(challenge: HTBChallenge, e: &mut 
         e.field("🧰 Working", challenge.working.unwrap(), true);
     }
 
-    if let Ok(solving_users) = get_solving_users_for_challenge(challenge.htb_id).await {
+    if let Ok(solving_users) = block_on(get_solving_users_for_challenge(challenge.htb_id)) {
         let solving_string = solving_users.join(", ");
         e.field("🏴‍ Solved", solving_string, true);
     }
@@ -79,7 +79,7 @@ pub async fn create_embed_of_challenge_solved(
         .send_message(http, |message| {
             message.embed(|e| {
                 e.title(format!(
-                    "🏴‍ {} has been solved by {} 🏴‍",
+                    "🏴‍ {} has been solved by {}‍",
                     challenge.name, solver_name
                 ));
                 e.description(format!(
@@ -109,7 +109,7 @@ pub async fn create_embed_of_htb_challenge_solved(
         .send_message(http, |message| {
             message.embed(|e| {
                 e.title(format!(
-                    "🏴‍ {} has been solved by {} 🏴‍",
+                    "🏴‍ {} has been solved by {}",
                     challenge.name, solve.solver
                 ));
                 e.field("📚 Category", &challenge_category_name, true);
