@@ -5,21 +5,33 @@ updates:
   directory: "/bot"
   schedule:
     interval: daily
+  allowed_updates:
+    - match:
+        update_type: "security"
 
 # Maintain dependencies for the ctfdb module
 - package-ecosystem: cargo
   directory: "/ctfdb"
   schedule:
     interval: daily
+  allowed_updates:
+    - match:
+        update_type: "security"
 
 # Maintain dependencies for the rest-api module
 - package-ecosystem: cargo
   directory: "/rest-api"
   schedule:
     interval: daily
+  allowed_updates:
+      - match:
+          update_type: "security"
 
 # Maintain dependencies for the frontend module
 - package-ecosystem: npm
   directory: "/frontend"
   schedule:
     interval: daily
+  allowed_updates:
+    - match:
+        update_type: "security"
