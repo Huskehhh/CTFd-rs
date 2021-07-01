@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn test_deserialise_recent_activity() {
-        let data = read_file_to_string("recent_actiity.json");
+        let data = read_file_to_string("recent_activity.json");
 
         let recent_data: Vec<GetRecentTeamActivityData> = serde_json::from_str(&data).unwrap();
 
