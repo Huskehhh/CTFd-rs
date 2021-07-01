@@ -35,10 +35,17 @@ table! {
         release_date -> Text,
         challenge_category -> Integer,
         working -> Nullable<Text>,
-        solved -> Bool,
-        solver -> Nullable<Text>,
-        solved_time -> Nullable<Datetime>,
-        announced_solve -> Bool,
+    }
+}
+
+table! {
+    htb_solves (id) {
+        id -> Integer,
+        user_id -> Integer,
+        username -> Text,
+        challenge_id -> Integer,
+        announced -> Bool,
+        solved_time -> Datetime,
     }
 }
 
@@ -52,4 +59,10 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(challenges, ctfs, htb_challenges, scoreboard,);
+allow_tables_to_appear_in_same_query!(
+    challenges,
+    ctfs,
+    htb_challenges,
+    htb_solves,
+    scoreboard,
+);

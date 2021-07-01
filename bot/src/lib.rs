@@ -1,10 +1,22 @@
 #[macro_use]
 extern crate failure;
 
-use ctfdb::{ChallengeProvider, ctfs::db::{
+use ctfdb::{
+    ctfs::db::{
         check_for_new_solves, get_active_ctfs, get_and_store_scoreboard, mark_solved,
         update_challenges_and_scores, CTF_CACHE,
-    }, htb::{db::{CATEGORY_CACHE, get_new_solves, mark_htb_solved, update_htb_challenges_and_scores}, structs::HTBApi}, models::{Challenge, HTBChallenge}};
+    },
+    htb::{
+        db::{
+            add_challenge_announced_for_user, get_solves_to_announce,
+            get_solving_users_for_challenge, process_new_solves, update_htb_challenges_and_scores,
+            CATEGORY_CACHE,
+        },
+        structs::{HTBApi, SolveToAnnounce},
+    },
+    models::{Challenge, HTBChallenge},
+    ChallengeProvider,
+};
 use failure::Error;
 use serenity::{
     builder::CreateEmbed, framework::standard::CommandResult, http::Http, model::id::ChannelId,
@@ -28,7 +40,8 @@ pub fn populate_embed_from_challenge(challenge: Challenge, e: &mut CreateEmbed) 
     }
 }
 
-pub fn populate_embed_from_htb_challenge(challenge: HTBChallenge, e: &mut CreateEmbed) {
+#[tokio::main]
+pub async fn populate_embed_from_htb_challenge(challenge: HTBChallenge, e: &mut CreateEmbed) {
     let challenge_category_name = get_challenge_category_from_id(challenge.challenge_category);
 
     e.title(format!("❓ {} ❓", challenge.name));
@@ -39,8 +52,9 @@ pub fn populate_embed_from_htb_challenge(challenge: HTBChallenge, e: &mut Create
         e.field("🧰 Working", challenge.working.unwrap(), true);
     }
 
-    if challenge.solved && challenge.solver.is_some() {
-        e.field("🏴‍ Solved", challenge.solver.unwrap(), true);
+    if let Ok(solving_users) = get_solving_users_for_challenge(challenge.htb_id).await {
+        let solving_string = solving_users.join(", ");
+        e.field("🏴‍ Solved", solving_string, true);
     }
 }
 
@@ -83,12 +97,12 @@ pub async fn create_embed_of_challenge_solved(
 }
 
 pub async fn create_embed_of_htb_challenge_solved(
-    challenge: &HTBChallenge,
+    solve: &SolveToAnnounce,
     channel_id: &ChannelId,
     http: &Http,
 ) -> CommandResult {
+    let challenge = &solve.challenge;
     // This should never not be populated
-    let solver_name = challenge.solver.as_ref().unwrap();
     let challenge_category_name = get_challenge_category_from_id(challenge.challenge_category);
 
     channel_id
@@ -96,7 +110,7 @@ pub async fn create_embed_of_htb_challenge_solved(
             message.embed(|e| {
                 e.title(format!(
                     "🏴‍ {} has been solved by {} 🏴‍",
-                    challenge.name, solver_name
+                    challenge.name, solve.solver
                 ));
                 e.field("📚 Category", &challenge_category_name, true);
                 e.field("💰 Points", &challenge.points, true);
@@ -141,7 +155,7 @@ async fn process_solve(
 }
 
 async fn process_htb_solve(
-    solve: HTBChallenge,
+    solve: SolveToAnnounce,
     channel_id: &ChannelId,
     http: &Http,
 ) -> Result<(), Error> {
@@ -156,7 +170,7 @@ async fn process_htb_solve(
     }
 
     // If it makes it to this point, it will mark it as 'announced_solved' which basically means "processed"
-    mark_htb_solved(&solve).await?;
+    add_challenge_announced_for_user(&solve, solve.challenge.htb_id).await?;
 
     Ok(())
 }
@@ -227,9 +241,14 @@ pub async fn scoreboard_and_scores_task() {
 }
 
 #[tokio::main]
-pub async fn htb_poller_task(htb_api: &HTBApi, http: &Http, channel_id: &ChannelId) -> Result<(), Error> {
+pub async fn htb_poller_task(
+    htb_api: &HTBApi,
+    http: &Http,
+    channel_id: &ChannelId,
+) -> Result<(), Error> {
     update_htb_challenges_and_scores(htb_api).await?;
-    let solves = get_new_solves(htb_api).await;
+    process_new_solves(htb_api).await?;
+    let solves = get_solves_to_announce().await;
 
     match solves {
         Ok(solves) => {
@@ -240,7 +259,6 @@ pub async fn htb_poller_task(htb_api: &HTBApi, http: &Http, channel_id: &Channel
                     match process_htb_solve(solve, &channel_id, http).await {
                         Ok(_) => {
                             println!("HTB POLLER: New solve processed.");
-                            break;
                         }
                         Err(why) => {
                             eprintln!("Error when processing HTB solve... {}", why);

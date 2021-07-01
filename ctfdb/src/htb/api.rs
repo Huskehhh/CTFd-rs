@@ -54,6 +54,19 @@ impl HTBApi {
         Ok(active_challenges)
     }
 
+    pub async fn list_active_machines(&self) -> Result<ListActiveMachines, Error> {
+        let url = format!("{}/machine/list", API_URL);
+
+        let active_machines = self
+            .client
+            .get(&url)
+            .send()
+            .await?
+            .json::<ListActiveMachines>()
+            .await?;
+        Ok(active_machines)
+    }
+
     pub async fn list_team_members(&self) -> Result<ListTeamMembers, Error> {
         let url = format!("{}/team/members/{}", API_URL, &self.config.team_id);
 
@@ -83,7 +96,10 @@ impl HTBApi {
     }
 
     pub async fn get_recent_team_activity(&self) -> Result<Vec<GetRecentTeamActivityData>, Error> {
-        let url = format!("{}/team/activity/{}", API_URL, &self.config.team_id);
+        let url = format!(
+            "{}/team/activity/{}?n_past_days=90",
+            API_URL, &self.config.team_id
+        );
 
         let team_members = self
             .client

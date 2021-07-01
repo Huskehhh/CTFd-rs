@@ -44,8 +44,14 @@ pub struct HTBChallenge {
     pub release_date: String,
     pub challenge_category: i32,
     pub working: Option<String>,
-    pub solved: bool,
-    pub solver: Option<String>,
-    pub solved_time: Option<NaiveDateTime>,
-    pub announced_solve: bool,
+}
+
+#[derive(Debug, Queryable, Clone)]
+pub struct HTBSolve {
+    pub id: i32,
+    pub user_id: i32,
+    pub username: String,
+    pub challenge_id: i32,
+    pub announced: bool,
+    pub solved_time: NaiveDateTime,
 }

@@ -5,8 +5,13 @@ use diesel::{QueryDsl, RunQueryDsl};
 use failure::Error;
 use once_cell::sync::Lazy;
 
+use crate::htb::structs::SolveToAnnounce;
+use crate::models::HTBSolve;
 use crate::PooledMysqlConnection;
-use crate::{get_pooled_connection, models::HTBChallenge, schema::htb_challenges::dsl as htb_dsl};
+use crate::{
+    get_pooled_connection, models::HTBChallenge, schema::htb_challenges::dsl as htb_dsl,
+    schema::htb_solves::dsl as htb_solve_dsl,
+};
 
 use super::structs::{GetRecentTeamActivityData, HTBApi, ListActiveChallengesData};
 
@@ -47,6 +52,17 @@ pub fn get_challenge_from_name(
 ) -> Result<Vec<HTBChallenge>, Error> {
     let challenges = htb_dsl::htb_challenges
         .filter(htb_dsl::name.eq(name))
+        .limit(1)
+        .load::<HTBChallenge>(connection)?;
+    Ok(challenges)
+}
+
+pub fn get_challenge_from_id(
+    id: i32,
+    connection: &MysqlConnection,
+) -> Result<Vec<HTBChallenge>, Error> {
+    let challenges = htb_dsl::htb_challenges
+        .filter(htb_dsl::htb_id.eq(id))
         .limit(1)
         .load::<HTBChallenge>(connection)?;
     Ok(challenges)
@@ -131,44 +147,170 @@ pub async fn remove_working(username: String, challenge_name: &str) -> Result<()
     Ok(())
 }
 
-pub async fn mark_htb_solved(challenge: &HTBChallenge) -> Result<(), Error> {
+pub async fn process_new_solves(api: &HTBApi) -> Result<(), Error> {
+    let recent_activity = api.get_recent_team_activity().await?;
     let connection = get_pooled_connection().await?;
 
-    let challenge_id = challenge.id;
-
-    update(htb_dsl::htb_challenges)
-        .filter(htb_dsl::id.eq(challenge_id))
-        .set((
-            htb_dsl::solver.eq(&challenge.solver),
-            htb_dsl::solved.eq(true),
-            htb_dsl::solved_time.eq(&challenge.solved_time),
-            htb_dsl::announced_solve.eq(true),
-        ))
-        .execute(&connection)?;
+    for solve in recent_activity {
+        match map_htb_response_to_challenge(&connection, &solve).await {
+            Ok(challenge) => {
+                if !is_challenge_solved_and_not_announced_for_user(
+                    solve.user.id,
+                    challenge.htb_id,
+                    &connection,
+                ) {
+                    println!(
+                        "HTB: Adding solve for user {}, challenge: {}",
+                        solve.user.name, solve.name
+                    );
+                    add_challenge_solved_for_user(
+                        solve.user.id,
+                        solve.user.name,
+                        solve.date,
+                        solve.id,
+                        &connection,
+                    )?;
+                }
+            }
+            Err(why) => {
+                eprintln!("Error when mapping HTB response to challenge. Likely due to a retired machine or challenge! {}", why);
+            }
+        }
+    }
 
     Ok(())
 }
 
-pub async fn get_new_solves(api: &HTBApi) -> Result<Vec<HTBChallenge>, Error> {
+pub async fn get_solves_to_announce() -> Result<Vec<SolveToAnnounce>, Error> {
     let connection = get_pooled_connection().await?;
-    let mut new_solves = vec![];
-    let recent_activity = api.get_recent_team_activity().await?;
 
-    for solve in recent_activity {
-        let mut challenge = map_htb_response_to_challenge(&connection, &solve).await?;
+    let mut solves_to_announce = vec![];
 
-        if !challenge.announced_solve {
-            let solved_time = NaiveDateTime::parse_from_str(&solve.date, "%Y-%m-%dT%H:%M:%S%z")?;
-            let solver_name = solve.user.name;
+    for solve in get_unannounced_solves(&connection)? {
+        let challenges = get_challenge_from_id(solve.challenge_id, &connection)?;
 
-            challenge.solved_time = Some(solved_time);
-            challenge.solver = Some(solver_name);
+        if !challenges.is_empty() {
+            let solve_to_announce = SolveToAnnounce {
+                solver: solve.username,
+                user_id: solve.user_id,
+                challenge: challenges[0].clone(),
+            };
 
-            new_solves.push(challenge);
+            solves_to_announce.push(solve_to_announce);
         }
     }
 
-    Ok(new_solves)
+    Ok(solves_to_announce)
+}
+
+pub fn get_solves_for_user(
+    user_id: i32,
+    connection: &PooledMysqlConnection,
+) -> Result<Vec<HTBSolve>, Error> {
+    let solves = htb_solve_dsl::htb_solves
+        .filter(htb_solve_dsl::user_id.eq(user_id))
+        .load::<HTBSolve>(connection)?;
+    Ok(solves)
+}
+
+pub async fn get_solving_users_for_challenge(challenge_id: i32) -> Result<Vec<String>, Error> {
+    let mut solving_users = vec![];
+
+    let connection = get_pooled_connection().await?;
+
+    let solves = get_solves_for_challenge(challenge_id, &connection)?;
+
+    for solve in solves {
+        solving_users.push(solve.username);
+    }
+
+    Ok(solving_users)
+}
+
+pub fn get_solves_for_challenge(
+    challenge_id: i32,
+    connection: &PooledMysqlConnection,
+) -> Result<Vec<HTBSolve>, Error> {
+    let solves = htb_solve_dsl::htb_solves
+        .filter(htb_solve_dsl::challenge_id.eq(challenge_id))
+        .load::<HTBSolve>(connection)?;
+    Ok(solves)
+}
+
+pub fn get_unannounced_solves(connection: &PooledMysqlConnection) -> Result<Vec<HTBSolve>, Error> {
+    let solves = htb_solve_dsl::htb_solves
+        .filter(htb_solve_dsl::announced.eq(false))
+        .load::<HTBSolve>(connection)?;
+    Ok(solves)
+}
+
+pub fn add_challenge_solved_for_user(
+    user_id: i32,
+    username: String,
+    solve_date: String,
+    challenge_id: i32,
+    connection: &MysqlConnection,
+) -> Result<(), Error> {
+    let challenges = get_challenge_from_id(challenge_id, connection)?;
+
+    if !challenges.is_empty() {
+        let challenge = &challenges[0];
+        let solved_time = NaiveDateTime::parse_from_str(&solve_date, "%Y-%m-%dT%H:%M:%S.%Z")?;
+
+        insert_into(htb_solve_dsl::htb_solves)
+            .values((
+                htb_solve_dsl::user_id.eq(user_id),
+                htb_solve_dsl::username.eq(username),
+                htb_solve_dsl::challenge_id.eq(challenge.htb_id),
+                htb_solve_dsl::announced.eq(false),
+                htb_solve_dsl::solved_time.eq(solved_time),
+            ))
+            .execute(connection)?;
+
+        return Ok(());
+    }
+
+    Err(format_err!("No challenge by that ID was found!"))
+}
+
+pub async fn add_challenge_announced_for_user(
+    solve: &SolveToAnnounce,
+    challenge_id: i32,
+) -> Result<(), Error> {
+    let connection = get_pooled_connection().await?;
+    let challenges = get_challenge_from_id(challenge_id, &connection)?;
+
+    if !challenges.is_empty() {
+        let challenge = &challenges[0];
+
+        update(htb_solve_dsl::htb_solves)
+            .filter(htb_solve_dsl::user_id.eq(solve.user_id))
+            .filter(htb_solve_dsl::challenge_id.eq(challenge.htb_id))
+            .set(htb_solve_dsl::announced.eq(true))
+            .execute(&connection)?;
+
+        return Ok(());
+    }
+
+    Err(format_err!("No challenge by that ID was found!"))
+}
+
+pub fn is_challenge_solved_and_not_announced_for_user(
+    user_id: i32,
+    challenge_id: i32,
+    connection: &MysqlConnection,
+) -> bool {
+    if let Ok(solves) = htb_solve_dsl::htb_solves
+        .filter(htb_solve_dsl::user_id.eq(user_id))
+        .filter(htb_solve_dsl::challenge_id.eq(challenge_id))
+        .filter(htb_solve_dsl::announced.eq(false))
+        .limit(1)
+        .load::<HTBSolve>(connection)
+    {
+        return !solves.is_empty();
+    }
+
+    false
 }
 
 pub async fn update_htb_challenges_and_scores(htb_api: &HTBApi) -> Result<(), Error> {
@@ -178,6 +320,21 @@ pub async fn update_htb_challenges_and_scores(htb_api: &HTBApi) -> Result<(), Er
     for challenge in challenges.challenges {
         // We don't need to update the score for challenges, they are static
         ensure_challenge_exists_otherwise_add(&challenge, &connection).await?;
+    }
+
+    let machines = htb_api.list_active_machines().await?.info;
+    for machine in machines {
+        let machine_points = format!("{}", machine.points);
+        let mapped_to_challenge_data = ListActiveChallengesData {
+            id: machine.id,
+            name: machine.name,
+            difficulty: machine.difficulty,
+            points: machine_points,
+            release_date: machine.release,
+            challenge_category_id: 100,
+        };
+
+        ensure_challenge_exists_otherwise_add(&mapped_to_challenge_data, &connection).await?;
     }
 
     Ok(())
@@ -194,6 +351,7 @@ pub async fn ensure_challenge_exists_otherwise_add(
         .load::<HTBChallenge>(connection)?;
 
     if challenges.is_empty() {
+        println!("HTB: Found a challenge that we haven't got, adding now...");
         insert_into(htb_dsl::htb_challenges)
             .values((
                 htb_dsl::htb_id.eq(challenge.id),
@@ -202,8 +360,6 @@ pub async fn ensure_challenge_exists_otherwise_add(
                 htb_dsl::points.eq(&challenge.points),
                 htb_dsl::release_date.eq(&challenge.release_date),
                 htb_dsl::challenge_category.eq(&challenge.challenge_category_id),
-                htb_dsl::solved.eq(false),
-                htb_dsl::announced_solve.eq(false),
             ))
             .execute(connection)?;
 
@@ -220,6 +376,9 @@ pub async fn load_categories_to_cache(htb_api: &HTBApi) -> Result<(), Error> {
     for category in challenge_categories_response.info {
         CATEGORY_CACHE.insert(category.id, category.name);
     }
+
+    // Machines don't have a category, so we add one with an ID that wont collide
+    CATEGORY_CACHE.insert(100, "Machine".to_owned());
 
     Ok(())
 }

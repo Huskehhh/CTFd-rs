@@ -1,6 +1,8 @@
 use reqwest::Client;
 use serde::Deserialize;
 
+use crate::models::HTBChallenge;
+
 // All information from https://github.com/Propolisa/htb-api-docs
 
 #[derive(Debug, Deserialize)]
@@ -25,6 +27,7 @@ pub struct GetRecentTeamActivityData {
 
 #[derive(Debug, Deserialize)]
 pub struct UserData {
+    pub id: i32,
     pub name: String,
     pub avatar_thumb: String,
 }
@@ -62,9 +65,24 @@ pub struct ListActiveChallengesData {
     pub id: i32,
     pub name: String,
     pub difficulty: String,
-    pub points: String, // TODO Double check this...
+    pub points: String,
     pub release_date: String,
     pub challenge_category_id: i32,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ListActiveMachines {
+    pub info: Vec<ListActiveMachinesData>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ListActiveMachinesData {
+    pub id: i32,
+    pub name: String,
+    #[serde(rename = "difficultyText")]
+    pub difficulty: String,
+    pub points: i32,
+    pub release: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -86,6 +104,13 @@ pub struct LoginResponse {
 #[derive(Debug, Deserialize)]
 pub struct LoginResponseData {
     pub access_token: String,
+}
+
+#[derive(Debug)]
+pub struct SolveToAnnounce {
+    pub solver: String,
+    pub user_id: i32,
+    pub challenge: HTBChallenge,
 }
 
 #[derive(Debug)]
@@ -139,6 +164,17 @@ mod tests {
 
         assert_ne!(challenges.len(), 0);
         assert_eq!(challenges[0].name, "Bombs Landed");
+    }
+
+    #[test]
+    fn test_deserialise_list_machines() {
+        let data = read_file_to_string("list_machines.json");
+
+        let active_machines: ListActiveMachines = serde_json::from_str(&data).unwrap();
+        let machines = active_machines.info;
+
+        assert_ne!(machines.len(), 0);
+        assert_eq!(machines[0].name, "RopeTwo");
     }
 
     #[test]
