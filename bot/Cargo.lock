@@ -261,6 +261,7 @@ version = "0.1.0"
 dependencies = [
  "async-rwlock",
  "async-trait",
+ "base64 0.13.0",
  "chrono",
  "dashmap",
  "diesel",

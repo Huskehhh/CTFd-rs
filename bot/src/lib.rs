@@ -242,10 +242,11 @@ pub async fn scoreboard_and_scores_task() {
 
 #[tokio::main]
 pub async fn htb_poller_task(
-    htb_api: &HTBApi,
+    htb_api: &mut HTBApi,
     http: &Http,
     channel_id: &ChannelId,
 ) -> Result<(), Error> {
+    htb_api.handle_token_renewal().await?;
     update_htb_challenges_and_scores(htb_api).await?;
     process_new_solves(htb_api).await?;
     let solves = get_solves_to_announce().await;

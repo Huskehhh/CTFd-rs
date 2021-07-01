@@ -4,9 +4,11 @@ extern crate diesel;
 extern crate failure;
 
 use async_trait::async_trait;
+use chrono::{DateTime, Local};
 use ctfs::structs::{
     ChallengeResponse, MyTeamResponseData, TeamSolvesResponseData, UserResponseData,
 };
+use htb::structs::JWTClaims;
 use reqwest::{
     header::{HeaderMap, HeaderValue},
     Client, ClientBuilder,
@@ -76,4 +78,41 @@ pub trait ChallengeProvider {
     async fn get_team_solved_challenges(&self) -> Result<Vec<TeamSolvesResponseData>, Error>;
     async fn user_from_id(&self, id: i32) -> Result<UserResponseData, Error>;
     async fn team_stats(&self) -> Result<MyTeamResponseData, Error>;
+}
+
+pub fn jwt_still_valid(jwt: &JWTClaims) -> bool {
+    let local: DateTime<Local> = Local::now();
+    let unix_epoch = local.timestamp();
+
+    if unix_epoch > jwt.exp {
+        return false;
+    }
+
+    true
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::Duration;
+
+    #[test]
+    fn test_jwt_validity() {
+        let local: DateTime<Local> = Local::now();
+
+        let tomorrow_midnight = (local + Duration::days(1)).date().and_hms(0, 0, 0);
+        let yesterday_midnight = (local - Duration::days(1)).date().and_hms(0, 0, 0);
+
+        let jwt = JWTClaims {
+            exp: tomorrow_midnight.timestamp(),
+        };
+
+        assert!(jwt_still_valid(&jwt));
+
+        let jwt = JWTClaims {
+            exp: yesterday_midnight.timestamp(),
+        };
+
+        assert!(!jwt_still_valid(&jwt));
+    }
 }

@@ -1,5 +1,7 @@
+use base64::decode;
+use failure::Error;
 use reqwest::Client;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::models::HTBChallenge;
 
@@ -124,6 +126,22 @@ pub struct HTBAPIConfig {
 pub struct HTBApi {
     pub config: HTBAPIConfig,
     pub client: Client,
+    pub jwt: JWTClaims,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct JWTClaims {
+    pub exp: i64,
+}
+
+pub fn parse_jwt(token: &str) -> Result<JWTClaims, Error> {
+    let b64url = token.split('.').collect::<Vec<_>>()[1];
+    let buffer = b64url.replace("/-/g", "+").replace("/_/g", "/");
+    let decoded = decode(buffer)?[..].to_vec();
+    let to_string = String::from_utf8(decoded)?;
+    let jwt_claims: JWTClaims = serde_json::from_str(&to_string)?;
+
+    Ok(jwt_claims)
 }
 
 #[cfg(test)]
@@ -196,5 +214,14 @@ mod tests {
         let login_response: LoginResponse = serde_json::from_str(&data).unwrap();
 
         assert_eq!(login_response.message.access_token, "abcd");
+    }
+
+    #[test]
+    fn test_deserialise_jwt() {
+        let token = read_file_to_string("jwt.txt");
+
+        let claims = parse_jwt(&token);
+
+        assert!(claims.is_ok());
     }
 }

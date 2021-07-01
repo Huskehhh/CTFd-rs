@@ -169,7 +169,7 @@ async fn main() {
     };
 
     match new_htbapi_instance(htb_config).await {
-        Ok(htb_api) => {
+        Ok(mut htb_api) => {
             thread::spawn(move || {
                 let http = Http::new_with_token(&token_copy);
                 let channel_id = ChannelId(htb_channel_id);
@@ -179,7 +179,7 @@ async fn main() {
                 }
 
                 loop {
-                    if let Err(why) = htb_poller_task(&htb_api, &http, &channel_id) {
+                    if let Err(why) = htb_poller_task(&mut htb_api, &http, &channel_id) {
                         eprintln!("Error in HTB polling service... {}", why);
                     }
                     sleep(Duration::from_secs(60));

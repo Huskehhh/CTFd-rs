@@ -4,7 +4,7 @@ use failure::Error;
 use reqwest::{Client, ClientBuilder};
 use serde_json::json;
 
-use crate::create_reqwest_client;
+use crate::{create_reqwest_client, jwt_still_valid};
 
 use super::structs::*;
 
@@ -20,7 +20,13 @@ pub async fn new_htbapi_instance(config: HTBAPIConfig) -> Result<HTBApi, Error> 
 
     let client = create_reqwest_client(&token, "Bearer");
 
-    Ok(HTBApi { config, client })
+    let jwt = parse_jwt(&token)?;
+
+    Ok(HTBApi {
+        config,
+        client,
+        jwt,
+    })
 }
 
 async fn login_and_get_token(config: &HTBAPIConfig, client: &Client) -> Result<String, Error> {
@@ -124,5 +130,16 @@ impl HTBApi {
             .await?;
 
         Ok(challenge_categories)
+    }
+
+    pub async fn handle_token_renewal(&mut self) -> Result<(), Error> {
+        if !jwt_still_valid(&self.jwt) {
+            let token = login_and_get_token(&self.config, &self.client).await?;
+
+            self.jwt = parse_jwt(&token)?;
+            self.client = create_reqwest_client(&token, "Bearer");
+        }
+
+        Ok(())
     }
 }
