@@ -12,7 +12,7 @@ use crate::populate_embed_from_htb_challenge;
 pub struct Hacker;
 
 #[command]
-#[allowed_roles("Hacker")]
+#[allowed_roles("hacker")]
 #[aliases("w")]
 #[example("\"Challenge name\"")]
 #[description = "Marks you as working on the provided challenge"]
@@ -53,7 +53,7 @@ async fn working(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
 
 // For lack of a better name...
 #[command]
-#[allowed_roles("Hacker")]
+#[allowed_roles("hacker")]
 #[aliases("g")]
 #[example("\"Challenge name\"")]
 #[description = "Removes you from working on the given challenge"]
@@ -81,7 +81,7 @@ async fn giveup(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
-#[allowed_roles("Hacker")]
+#[allowed_roles("hacker")]
 #[example("\"Challenge name\"")]
 #[description = "Searches for the status of the given challenge"]
 async fn search(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
