@@ -56,6 +56,10 @@ Alternatively... use [Docker](https://www.docker.com/)!
     DATABASE_URL=mysql://ctfd_bot:password@some.ip.here:3306/ctfd_bot
     DISCORD_TOKEN=<token goes here>
     OWNER_ID=276519212100000000
+    HTB_TEAM_ID=0
+    HTB_EMAIL=some@email.here
+    HTB_PASSWORD=supersecretpassword123
+    HTB_CHANNEL_ID=860092136775200000
     ```
 
    See [here](https://discord.com/developers/docs/topics/oauth2#bots) for more information.
@@ -65,16 +69,21 @@ Alternatively... use [Docker](https://www.docker.com/)!
 
 #### 💻 Commands
 
-| Command                                                                 | Description                                                                                    | Permission |
-| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------- |
-| !start "*ctf name*" *https://url.to.ctf* *api-key* *discord-channel-id* | Starts a new CTF with given name, uses API key as auth. Posts updates to given discord channel | Organiser  |
-| !end "*ctf name*"                                                       | Ends CTF with given name                                                                       | Organiser  |
-| !active                                                                 | Lists all active CTFs                                                                          | CTFer      |
-| !list "*ctf name*" OR !ctf list                                         | Lists all challenges on given CTF OR for CTF linked to current channel                         | CTFer      |
-| ![working/w] "*challenge*"                                              | Marks you as working on the given challenge                                                    | CTFer      |
-| ![giveup/g] "*challenge*"                                               | Removes you from working on the given challenge                                                | CTFer      |
-| ![search] "*challenge*"                                                 | Searches for the given challenge and returns the status of it                                  | CTFer      |
-| !stats                                                                  | Displays the current stats for all active CTFs                                                 | CTFer      |
+Available prefixes are ``!`` ``.`` ``~``
+
+| Command                                                                     | Description                                                                                    | Permission |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------- |
+| !ctf start "*ctf name*" *https://url.to.ctf* *api-key* *discord-channel-id* | Starts a new CTF with given name, uses API key as auth. Posts updates to given discord channel | Organiser  |
+| !ctf end "*ctf name*"                                                       | Ends CTF with given name                                                                       | Organiser  |
+| !ctf active                                                                 | Lists all active CTFs                                                                          | CTFer      |
+| !ctf list "*ctf name*" OR !ctf list                                         | Lists all challenges on given CTF OR for CTF linked to current channel                         | CTFer      |
+| !ctf [working/w] "*challenge*"                                              | Marks you as working on the given challenge                                                    | CTFer      |
+| !ctf [giveup/g] "*challenge*"                                               | Removes you from working on the given challenge                                                | CTFer      |
+| !ctf [search] "*challenge*"                                                 | Searches for the given challenge and returns the status of it                                  | CTFer      |
+| !ctf stats                                                                  | Displays the current stats for all active CTFs                                                 | CTFer      |
+| !htb [working/w] "*challenge*"                                              | Marks you as working on the given challenge                                                    | Hacker     |
+| !htb [giveup/g] "*challenge*"                                               | Removes you from working on the given challenge                                                | Hacker     |
+| !htb [search] "*challenge*"                                                 | Searches for the given challenge and returns the status of it                                  | Hacker     |
 
 ### rest-api
 
