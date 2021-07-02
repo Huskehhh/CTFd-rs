@@ -1,0 +1,50 @@
+{
+    "info": [
+        {
+            "id": 260,
+            "name": "RopeTwo",
+            "os": "Linux",
+            "points": 50,
+            "static_points": 50,
+            "release": "2020-06-27T16:00:00.000000Z",
+            "user_owns_count": 47,
+            "root_owns_count": 33,
+            "authUserInUserOwns": null,
+            "authUserInRootOwns": null,
+            "isTodo": true,
+            "authUserHasReviewed": false,
+            "stars": "4.8",
+            "difficulty": 92,
+            "feedbackForChart": {
+                "counterCake": 3,
+                "counterVeryEasy": 0,
+                "counterEasy": 0,
+                "counterTooEasy": 0,
+                "counterMedium": 3,
+                "counterBitHard": 1,
+                "counterHard": 1,
+                "counterTooHard": 5,
+                "counterExHard": 3,
+                "counterBrainFuck": 57
+            },
+            "avatar": "/storage/avatars/c2847af85c98ff1b15a75aec060fa2de.png",
+            "difficultyText": "Insane",
+            "playInfo": {
+                "isSpawned": false,
+                "isSpawning": null,
+                "isActive": null,
+                "active_player_count": null,
+                "expires_at": null
+            },
+            "free": true,
+            "maker": {
+                "id": 13243,
+                "name": "R4J",
+                "avatar": "/storage/avatars/eef90f1ae0c06ff6c8779024fbd97d9f.png",
+                "isRespected": false
+            },
+            "maker2": null,
+            "recommended": 0
+        }
+    ]
+}

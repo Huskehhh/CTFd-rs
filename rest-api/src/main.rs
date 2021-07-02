@@ -4,11 +4,10 @@ use actix_web::{get, middleware, web, App, HttpResponse, HttpServer, Responder};
 
 use actix_cors::Cors;
 use chrono::Utc;
+use ctfdb::ctfs::db::{get_active_ctfs, get_challenges_for_ctfid, get_latest_scoreboard_status};
 use std::env;
 
 use serde::Serialize;
-
-use ctfdb::{get_active_ctfs, get_challenges_for_ctfid, get_latest_scoreboard_status};
 
 #[derive(Debug, Serialize)]
 pub struct ChallengeForIDResponse {

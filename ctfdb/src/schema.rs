@@ -26,6 +26,30 @@ table! {
 }
 
 table! {
+    htb_challenges (id) {
+        id -> Integer,
+        htb_id -> Integer,
+        name -> Text,
+        difficulty -> Text,
+        points -> Text,
+        release_date -> Text,
+        challenge_category -> Integer,
+        working -> Nullable<Text>,
+    }
+}
+
+table! {
+    htb_solves (id) {
+        id -> Integer,
+        user_id -> Integer,
+        username -> Text,
+        challenge_id -> Integer,
+        announced -> Bool,
+        solved_time -> Datetime,
+    }
+}
+
+table! {
     scoreboard (entry_id) {
         entry_id -> Integer,
         ctf_id -> Integer,
@@ -35,4 +59,10 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(challenges, ctfs, scoreboard,);
+allow_tables_to_appear_in_same_query!(
+    challenges,
+    ctfs,
+    htb_challenges,
+    htb_solves,
+    scoreboard,
+);
