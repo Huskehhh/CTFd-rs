@@ -56,7 +56,7 @@ async fn start(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     } else {
         msg.reply(
             &ctx.http,
-            "Usage: ``!start \"CTF Name\" <ctf url> <ctf api key> <id of channel to post updates in>``",
+            "Usage: ``!ctf start \"CTF Name\" <ctf url> <ctf api key> <id of channel to post updates in>``",
         )
             .await?;
     }
@@ -69,17 +69,22 @@ async fn start(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 #[example("\"CTF name\"")]
 #[description = "Ends a CTF with the provided name"]
 async fn end(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let name = args.single_quoted::<String>()?;
+    if args.len() == 1 {
+        let name = args.single_quoted::<String>()?;
 
-    match remove_active_ctf(&name).await {
-        Ok(_) => {
-            msg.reply(&ctx.http, &format!("CTF ended '{}'", name))
-                .await?;
-            // TODO show results
+        match remove_active_ctf(&name).await {
+            Ok(_) => {
+                msg.reply(&ctx.http, &format!("CTF ended '{}'", name))
+                    .await?;
+                // TODO show results
+            }
+            Err(why) => {
+                eprintln!("Error occurred when ending active ctf: {}", why);
+            }
         }
-        Err(why) => {
-            eprintln!("Error occurred when ending active ctf: {}", why);
-        }
+    } else {
+        msg.reply(&ctx.http, "Usage: ``!ctf end \"CTF name\"``")
+            .await?;
     }
 
     Ok(())
@@ -113,35 +118,40 @@ async fn active(ctx: &Context, msg: &Message, mut _args: Args) -> CommandResult 
 #[example("\"Challenge name\"")]
 #[description = "Marks you as working on the provided challenge"]
 async fn working(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let challenge_name = args.single_quoted::<String>()?;
+    if args.len() == 1 {
+        let challenge_name = args.single_quoted::<String>()?;
 
-    let username = msg
-        .author_nick(&ctx.http)
-        .await
-        .unwrap_or_else(|| msg.author.name.clone());
+        let username = msg
+            .author_nick(&ctx.http)
+            .await
+            .unwrap_or_else(|| msg.author.name.clone());
 
-    match add_working(username, &challenge_name).await {
-        Ok(_) => {
-            msg.reply(
-                &ctx.http,
-                &format!("Marked you as working on '{}'", &challenge_name),
-            )
-            .await?;
+        match add_working(username, &challenge_name).await {
+            Ok(_) => {
+                msg.reply(
+                    &ctx.http,
+                    &format!("Marked you as working on '{}'", &challenge_name),
+                )
+                .await?;
+            }
+            Err(why) => {
+                msg.reply(
+                    &ctx.http,
+                    format!(
+                        "Error when adding to working for '{}'... {}",
+                        &challenge_name, why
+                    ),
+                )
+                .await?;
+                eprintln!(
+                    "Error on adding to working for '{}' ... '{}'",
+                    &msg.author.name, why
+                );
+            }
         }
-        Err(why) => {
-            msg.reply(
-                &ctx.http,
-                format!(
-                    "Error when adding to working for '{}'... {}",
-                    &challenge_name, why
-                ),
-            )
+    } else {
+        msg.reply(&ctx.http, "Usage: ``!ctf working \"Challenge name\"``")
             .await?;
-            eprintln!(
-                "Error on adding to working for '{}' ... '{}'",
-                &msg.author.name, why
-            );
-        }
     }
 
     Ok(())
@@ -169,7 +179,7 @@ async fn giveup(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         )
         .await?;
     } else {
-        msg.reply(&ctx.http, "Usage: ``!giveup \"Challenge name\"``")
+        msg.reply(&ctx.http, "Usage: ``!ctf giveup \"Challenge name\"``")
             .await?;
     }
 
@@ -197,7 +207,7 @@ async fn list(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     } else {
         msg.reply(
             &ctx.http,
-            "Usage: ``!list \"CTF name\"`` or use ``!list`` in the correct channel",
+            "Usage: ``!ctf list \"CTF name\"`` or use ``!list`` in the correct channel",
         )
         .await?;
     }
@@ -231,7 +241,7 @@ async fn search(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                 .await?;
         }
     } else {
-        msg.reply(&ctx.http, "Usage: ``!search \"Challenge name\"``")
+        msg.reply(&ctx.http, "Usage: ``!ctf search \"Challenge name\"``")
             .await?;
     }
 
