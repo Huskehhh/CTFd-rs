@@ -86,7 +86,7 @@ pub async fn add_working(username: String, challenge_name: &str) -> Result<(), E
     let challenges = get_challenge_from_name(&challenge_name, &connection)?;
 
     if let Some(challenge) = challenges.first() {
-        let challenge_id = challenge.id;
+        let challenge_id = challenge.htb_id;
 
         match &challenge.working {
             Some(working) => {
@@ -117,7 +117,7 @@ pub async fn remove_working(username: String, challenge_name: &str) -> Result<()
     let challenges = get_challenge_from_name(&challenge_name, &connection)?;
 
     if let Some(challenge) = challenges.first() {
-        let challenge_id = challenge.id;
+        let challenge_id = challenge.htb_id;
 
         if let Some(working) = &challenge.working {
             let mut split: Vec<String> = working.split(", ").map(str::to_string).collect();
@@ -152,28 +152,23 @@ pub async fn process_new_solves(api: &HTBApi) -> Result<(), Error> {
     let connection = get_pooled_connection().await?;
 
     for solve in recent_activity {
-        match map_htb_response_to_challenge(&connection, &solve).await {
-            Ok(challenge) => {
-                if !is_challenge_solved_and_not_announced_for_user(
+        if let Ok(challenge) = map_htb_response_to_challenge(&connection, &solve).await {
+            if !is_challenge_solved_and_not_announced_for_user(
+                solve.user.id,
+                challenge.htb_id,
+                &connection,
+            ) {
+                println!(
+                    "HTB: Adding solve for user {}, challenge: {}",
+                    solve.user.name, solve.name
+                );
+                add_challenge_solved_for_user(
                     solve.user.id,
-                    challenge.htb_id,
+                    solve.user.name,
+                    solve.date,
+                    solve.id,
                     &connection,
-                ) {
-                    println!(
-                        "HTB: Adding solve for user {}, challenge: {}",
-                        solve.user.name, solve.name
-                    );
-                    add_challenge_solved_for_user(
-                        solve.user.id,
-                        solve.user.name,
-                        solve.date,
-                        solve.id,
-                        &connection,
-                    )?;
-                }
-            }
-            Err(why) => {
-                eprintln!("Error when mapping HTB response to challenge. Likely due to a retired machine or challenge! {}", why);
+                )?;
             }
         }
     }
@@ -219,6 +214,10 @@ pub async fn get_solving_users_for_challenge(challenge_id: i32) -> Result<Vec<St
     let connection = get_pooled_connection().await?;
 
     let solves = get_solves_for_challenge(challenge_id, &connection)?;
+
+    if solves.is_empty() {
+        return Err(format_err!("No solves for this challenge found!"));
+    }
 
     for solve in solves {
         solving_users.push(solve.username);

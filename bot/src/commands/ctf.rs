@@ -16,7 +16,6 @@ pub struct CTFer;
 
 #[command]
 #[allowed_roles("Organiser")]
-#[aliases("start")]
 #[example("\"CTF name\" <ctf url> <api key>")]
 #[example("\"CTF name\" <ctf url> <api key> <channel id to post updates to>")]
 #[description = "Starts a CTF, and will begin polling for challenge status changes"]
@@ -232,7 +231,7 @@ async fn search(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                 .await?;
         }
     } else {
-        msg.reply(&ctx.http, "Usage: ``!search \"Challenge name\"")
+        msg.reply(&ctx.http, "Usage: ``!search \"Challenge name\"``")
             .await?;
     }
 

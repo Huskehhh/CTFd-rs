@@ -132,7 +132,7 @@ async fn search(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                 .await?;
         }
     } else {
-        msg.reply(&ctx.http, "Usage: ``!search \"Challenge name\"")
+        msg.reply(&ctx.http, "Usage: ``!search \"Challenge name\"``")
             .await?;
     }
 
