@@ -1,4 +1,7 @@
-use ctfdb::htb::db::{add_working, remove_working, search_for_challenge_by_name};
+use ctfdb::htb::db::{
+    add_working, get_challenge_from_id, get_solves_for_username, remove_working,
+    search_for_challenge_by_name,
+};
 use serenity::client::Context;
 use serenity::framework::standard::{macros::*, Args, CommandResult};
 
@@ -7,7 +10,7 @@ use serenity::model::channel::Message;
 use crate::populate_embed_from_htb_challenge;
 
 #[group]
-#[commands(working, giveup, search)]
+#[commands(working, giveup, search, solves)]
 #[prefixes("htb", "h")]
 pub struct Hacker;
 
@@ -49,7 +52,7 @@ async fn working(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
             }
         }
     } else {
-          msg.reply(&ctx.http, "Usage: ``!htb working \"Challenge name\"``")
+        msg.reply(&ctx.http, "Usage: ``!htb working \"Challenge name\"``")
             .await?;
     }
 
@@ -112,6 +115,45 @@ async fn search(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         }
     } else {
         msg.reply(&ctx.http, "Usage: ``!htb search \"Challenge name\"``")
+            .await?;
+    }
+
+    Ok(())
+}
+
+#[command]
+#[allowed_roles("hacker")]
+#[example("\"Username\"")]
+#[description = "Searches for solves of a given user"]
+async fn solves(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    if args.len() == 1 {
+        let username = args.single_quoted::<String>()?;
+
+        let solves = get_solves_for_username(&username).await?;
+
+        if !solves.is_empty() {
+            for solve in solves {
+                let challenge = get_challenge_from_id(solve.challenge_id).await?;
+
+                if !challenge.is_empty() {
+                    let first_challenge = challenge[0].clone();
+
+                    msg.channel_id
+                        .send_message(&ctx.http, |m| {
+                            m.embed(|e| {
+                                populate_embed_from_htb_challenge(first_challenge, e);
+                                e
+                            })
+                        })
+                        .await?;
+                }
+            }
+        } else {
+            msg.reply(&ctx.http, "No solves found for that user!")
+                .await?;
+        }
+    } else {
+        msg.reply(&ctx.http, "Usage: ``!htb solves \"Challenge name\"``")
             .await?;
     }
 

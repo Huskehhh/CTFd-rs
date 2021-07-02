@@ -57,7 +57,7 @@ pub fn get_challenge_from_name(
     Ok(challenges)
 }
 
-pub fn get_challenge_from_id(
+pub fn get_challenge_from_id_with_connection(
     id: i32,
     connection: &MysqlConnection,
 ) -> Result<Vec<HTBChallenge>, Error> {
@@ -65,6 +65,15 @@ pub fn get_challenge_from_id(
         .filter(htb_dsl::htb_id.eq(id))
         .limit(1)
         .load::<HTBChallenge>(connection)?;
+    Ok(challenges)
+}
+
+pub async fn get_challenge_from_id(id: i32) -> Result<Vec<HTBChallenge>, Error> {
+    let connection = get_pooled_connection().await?;
+    let challenges = htb_dsl::htb_challenges
+        .filter(htb_dsl::htb_id.eq(id))
+        .limit(1)
+        .load::<HTBChallenge>(&connection)?;
     Ok(challenges)
 }
 
@@ -182,7 +191,7 @@ pub async fn get_solves_to_announce() -> Result<Vec<SolveToAnnounce>, Error> {
     let mut solves_to_announce = vec![];
 
     for solve in get_unannounced_solves(&connection)? {
-        let challenges = get_challenge_from_id(solve.challenge_id, &connection)?;
+        let challenges = get_challenge_from_id_with_connection(solve.challenge_id, &connection)?;
 
         if !challenges.is_empty() {
             let solve_to_announce = SolveToAnnounce {
@@ -205,6 +214,14 @@ pub fn get_solves_for_user(
     let solves = htb_solve_dsl::htb_solves
         .filter(htb_solve_dsl::user_id.eq(user_id))
         .load::<HTBSolve>(connection)?;
+    Ok(solves)
+}
+
+pub async fn get_solves_for_username(username: &str) -> Result<Vec<HTBSolve>, Error> {
+    let connection = get_pooled_connection().await?;
+    let solves = htb_solve_dsl::htb_solves
+        .filter(htb_solve_dsl::username.eq(username))
+        .load::<HTBSolve>(&connection)?;
     Ok(solves)
 }
 
@@ -250,7 +267,7 @@ pub fn add_challenge_solved_for_user(
     challenge_id: i32,
     connection: &MysqlConnection,
 ) -> Result<(), Error> {
-    let challenges = get_challenge_from_id(challenge_id, connection)?;
+    let challenges = get_challenge_from_id_with_connection(challenge_id, connection)?;
 
     if !challenges.is_empty() {
         let challenge = &challenges[0];
@@ -277,7 +294,7 @@ pub async fn add_challenge_announced_for_user(
     challenge_id: i32,
 ) -> Result<(), Error> {
     let connection = get_pooled_connection().await?;
-    let challenges = get_challenge_from_id(challenge_id, &connection)?;
+    let challenges = get_challenge_from_id_with_connection(challenge_id, &connection)?;
 
     if !challenges.is_empty() {
         let challenge = &challenges[0];
