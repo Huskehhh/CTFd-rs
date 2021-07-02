@@ -1,17 +1,19 @@
-FROM ekidd/rust-musl-builder:latest as builder
+FROM rust:1.53-slim-buster as builder
+
+RUN apt-get update && apt-get install -y build-essential default-libmysqlclient-dev libssl-dev openssl pkg-config
 
 WORKDIR /home/rust/
-ADD --chown=rust:rust ctfdb ctfdb
-ADD --chown=rust:rust bot bot
+COPY ctfdb ctfdb
+COPY bot bot
 
 WORKDIR /home/rust/bot/
 
-RUN cargo build --release
+RUN cargo install --path .
 
-FROM alpine:latest
+FROM debian:buster-slim
 
-RUN apk --no-cache add ca-certificates
+RUN apt-get update && apt-get upgrade -y && apt-get install -y mariadb-client openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /home/rust/bot/target/x86_64-unknown-linux-musl/release/ctf_bot /
+COPY --from=builder /usr/local/cargo/bin/ctf_bot /usr/local/bin/ctf_bot
 
-CMD ["./ctf_bot"]
+CMD ["ctf_bot"]

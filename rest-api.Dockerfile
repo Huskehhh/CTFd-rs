@@ -1,17 +1,19 @@
-FROM ekidd/rust-musl-builder:latest as builder
+FROM rust:1.53-slim-buster as builder
+
+RUN apt-get update && apt-get install -y build-essential default-libmysqlclient-dev libssl-dev openssl pkg-config
 
 WORKDIR /home/rust/
-ADD --chown=rust:rust ctfdb ctfdb
-ADD --chown=rust:rust rest-api rest-api
+COPY ctfdb ctfdb
+COPY rest-api rest-api
 
 WORKDIR /home/rust/rest-api/
 
-RUN cargo build --release
+RUN cargo install --path .
 
-FROM alpine:latest
+FROM debian:buster-slim
 
-RUN apk --no-cache add ca-certificates
+RUN apt-get update && apt-get upgrade -y && apt-get install -y mariadb-client openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /home/rust/rest-api/target/x86_64-unknown-linux-musl/release/rest-api /
+COPY --from=builder /usr/local/cargo/bin/rest-api /usr/local/bin/rest-api
 
-CMD ["./rest-api"]
+CMD ["rest-api"]
