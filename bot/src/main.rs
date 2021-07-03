@@ -8,6 +8,22 @@ use std::{
     time::Duration,
 };
 
+use dotenv::dotenv;
+use serenity::async_trait;
+use serenity::framework::StandardFramework;
+use serenity::model::channel::Message;
+use serenity::{
+    client::Context,
+    framework::standard::{help_commands, Args, CommandGroup, CommandResult, HelpOptions},
+};
+use serenity::{client::EventHandler, model::prelude::Activity};
+use serenity::{
+    framework::standard::{macros::*, DispatchError},
+    model::id::ChannelId,
+};
+use serenity::{http::Http, model::id::UserId, Client};
+use serenity::{model::gateway::Ready, model::Permissions};
+
 use ctf_bot::{
     commands::ctf::*, commands::htb::*, htb_poller_task, new_solve_poller_task,
     scoreboard_and_scores_task,
@@ -16,22 +32,6 @@ use ctfdb::{
     ctfs::db::initial_load_tasks,
     htb::{api::new_htbapi_instance, db::load_categories_to_cache, structs::HTBAPIConfig},
 };
-use dotenv::dotenv;
-use serenity::framework::StandardFramework;
-use serenity::model::channel::Message;
-use serenity::{
-    client::Context,
-    framework::standard::{help_commands, Args, CommandGroup, CommandResult, HelpOptions},
-};
-use serenity::{
-    framework::standard::{macros::*, DispatchError},
-    model::id::ChannelId,
-};
-use serenity::{http::Http, model::id::UserId, Client};
-
-use serenity::async_trait;
-use serenity::{client::EventHandler, model::prelude::Activity};
-use serenity::{model::gateway::Ready, model::Permissions};
 
 pub struct Handler;
 

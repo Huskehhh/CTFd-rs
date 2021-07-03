@@ -1,11 +1,11 @@
+use serenity::client::Context;
+use serenity::framework::standard::{macros::*, Args, CommandResult};
+use serenity::model::channel::Message;
+
 use ctfdb::ctfs::db::{
     add_active_ctf, add_working, get_active_ctfs, get_challenges_for_ctfname,
     get_latest_scoreboard_status, remove_active_ctf, remove_working, search_for_challenge_by_name,
 };
-use serenity::client::Context;
-use serenity::framework::standard::{macros::*, Args, CommandResult};
-
-use serenity::model::channel::Message;
 
 use crate::populate_embed_from_challenge;
 

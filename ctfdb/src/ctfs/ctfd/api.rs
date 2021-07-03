@@ -1,6 +1,5 @@
-use failure::Error;
-
 use async_trait::async_trait;
+use failure::Error;
 
 use crate::{
     create_reqwest_client,

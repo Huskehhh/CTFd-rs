@@ -3,26 +3,26 @@ extern crate diesel;
 #[macro_use]
 extern crate failure;
 
-use async_trait::async_trait;
-use chrono::{DateTime, Local};
-use ctfs::structs::{
-    ChallengeResponse, MyTeamResponseData, TeamSolvesResponseData, UserResponseData,
-};
-use htb::structs::JWTClaims;
-use reqwest::{
-    header::{HeaderMap, HeaderValue},
-    Client, ClientBuilder,
-};
-
 use std::{env, sync::Arc, time::Duration};
 
 use async_rwlock::RwLock;
+use async_trait::async_trait;
+use chrono::{DateTime, Local};
 use diesel::{
     r2d2::{self, ConnectionManager},
     MysqlConnection,
 };
 use failure::Error;
 use once_cell::sync::Lazy;
+use reqwest::{
+    header::{HeaderMap, HeaderValue},
+    Client, ClientBuilder,
+};
+
+use ctfs::structs::{
+    ChallengeResponse, MyTeamResponseData, TeamSolvesResponseData, UserResponseData,
+};
+use htb::structs::JWTClaims;
 
 use crate::r2d2::PooledConnection;
 
@@ -93,8 +93,9 @@ pub fn jwt_still_valid(jwt: &JWTClaims) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use chrono::Duration;
+
+    use super::*;
 
     #[test]
     fn test_jwt_validity() {

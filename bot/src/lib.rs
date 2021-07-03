@@ -1,6 +1,12 @@
 #[macro_use]
 extern crate failure;
 
+use failure::Error;
+use futures::executor::block_on;
+use serenity::{
+    builder::CreateEmbed, framework::standard::CommandResult, http::Http, model::id::ChannelId,
+};
+
 use ctfdb::{
     ctfs::db::{
         check_for_new_solves, get_active_ctfs, get_and_store_scoreboard, mark_solved,
@@ -16,11 +22,6 @@ use ctfdb::{
     },
     models::{Challenge, HTBChallenge},
     ChallengeProvider,
-};
-use failure::Error;
-use futures::executor::block_on;
-use serenity::{
-    builder::CreateEmbed, framework::standard::CommandResult, http::Http, model::id::ChannelId,
 };
 
 pub mod commands;

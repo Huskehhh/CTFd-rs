@@ -31,6 +31,7 @@ pub struct ChallengeResponse {
 pub struct ActiveCTFResponse {
     data: Vec<CTFResponse>,
 }
+
 #[derive(Serialize)]
 pub struct CTFResponse {
     name: String,

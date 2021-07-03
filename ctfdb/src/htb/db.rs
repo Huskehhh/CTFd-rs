@@ -70,11 +70,7 @@ pub fn get_challenge_from_id_with_connection(
 
 pub async fn get_challenge_from_id(id: i32) -> Result<Vec<HTBChallenge>, Error> {
     let connection = get_pooled_connection().await?;
-    let challenges = htb_dsl::htb_challenges
-        .filter(htb_dsl::htb_id.eq(id))
-        .limit(1)
-        .load::<HTBChallenge>(&connection)?;
-    Ok(challenges)
+    return get_challenge_from_id_with_connection(id, &connection);
 }
 
 pub async fn search_for_challenge_by_name(name: &str) -> Result<Vec<HTBChallenge>, Error> {
@@ -267,7 +263,7 @@ pub fn add_challenge_solved_for_user(
     challenge_id: i32,
     connection: &MysqlConnection,
 ) -> Result<(), Error> {
-    let challenges = get_challenge_from_id_with_connection(challenge_id, connection)?;
+    let challenges = get_challenge_from_id_with_connection(challenge_id, &connection)?;
 
     if !challenges.is_empty() {
         let challenge = &challenges[0];
