@@ -19,7 +19,7 @@ pub struct GetRecentTeamActivityData {
     pub user: UserData,
     pub date: String,
     #[serde(rename = "type")]
-    pub type_str: String,
+    pub solve_type: String,
     pub object_type: String,
     pub id: i32,
     pub name: String,
@@ -112,6 +112,7 @@ pub struct LoginResponseData {
 pub struct SolveToAnnounce {
     pub solver: String,
     pub user_id: i32,
+    pub solve_type: String,
     pub challenge: HTBChallenge,
 }
 

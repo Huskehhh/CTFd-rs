@@ -52,6 +52,7 @@ pub struct HTBSolve {
     pub user_id: i32,
     pub username: String,
     pub challenge_id: i32,
+    pub solve_type: String,
     pub announced: bool,
     pub solved_time: NaiveDateTime,
 }
