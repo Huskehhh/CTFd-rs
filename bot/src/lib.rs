@@ -97,6 +97,15 @@ pub async fn create_embed_of_challenge_solved(
     Ok(())
 }
 
+// Cheeky little function to capitalise the first char of a string.
+fn capitalise_first(s: &str) -> String {
+    let mut c = s.chars();
+    match c.next() {
+        None => String::new(),
+        Some(f) => f.to_uppercase().chain(c).collect(),
+    }
+}
+
 pub async fn create_embed_of_htb_challenge_solved(
     solve: &SolveToAnnounce,
     channel_id: &ChannelId,
@@ -106,13 +115,26 @@ pub async fn create_embed_of_htb_challenge_solved(
     // This should never not be populated
     let challenge_category_name = get_challenge_category_from_id(challenge.challenge_category);
 
+    let solve_type = capitalise_first(&solve.solve_type);
+
+    // Build up the content based around the solve type
+    let content;
+    if solve_type.eq("Challenge") {
+        content = format!(
+            "🏴 {} has been solved by {}",
+            &challenge.name, &solve.solver
+        );
+    } else {
+        content = format!(
+            "🏴 {} has been owned by {} on {}",
+            solve_type, &solve.solver, &challenge.name
+        );
+    }
+
     channel_id
         .send_message(http, |message| {
             message.embed(|e| {
-                e.title(format!(
-                    "🏴‍ {} has been solved by {}",
-                    challenge.name, solve.solver
-                ));
+                e.title(content);
                 e.field("📚 Category", &challenge_category_name, true);
                 e.field("💰 Points", &challenge.points, true);
                 e
@@ -274,4 +296,15 @@ pub async fn htb_poller_task(
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_capitalise_first() {
+        assert_eq!("Yes", capitalise_first("yes"));
+        assert_eq!("Yes", capitalise_first("Yes"));
+    }
 }

@@ -172,6 +172,7 @@ pub async fn process_new_solves(api: &HTBApi) -> Result<(), Error> {
                     solve.user.name,
                     solve.date,
                     solve.id,
+                    solve.solve_type,
                     &connection,
                 )?;
             }
@@ -193,6 +194,7 @@ pub async fn get_solves_to_announce() -> Result<Vec<SolveToAnnounce>, Error> {
             let solve_to_announce = SolveToAnnounce {
                 solver: solve.username,
                 user_id: solve.user_id,
+                solve_type: solve.solve_type,
                 challenge: challenges[0].clone(),
             };
 
@@ -261,6 +263,7 @@ pub fn add_challenge_solved_for_user(
     username: String,
     solve_date: String,
     challenge_id: i32,
+    solve_type: String,
     connection: &MysqlConnection,
 ) -> Result<(), Error> {
     let challenges = get_challenge_from_id_with_connection(challenge_id, &connection)?;
@@ -275,6 +278,7 @@ pub fn add_challenge_solved_for_user(
                 htb_solve_dsl::username.eq(username),
                 htb_solve_dsl::challenge_id.eq(challenge.htb_id),
                 htb_solve_dsl::announced.eq(false),
+                htb_solve_dsl::solve_type.eq(solve_type),
                 htb_solve_dsl::solved_time.eq(solved_time),
             ))
             .execute(connection)?;

@@ -44,6 +44,7 @@ table! {
         user_id -> Integer,
         username -> Text,
         challenge_id -> Integer,
+        solve_type -> Text,
         announced -> Bool,
         solved_time -> Datetime,
     }
