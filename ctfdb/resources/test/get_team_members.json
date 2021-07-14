@@ -1,0 +1,222 @@
+[
+    {
+        "id": 66487,
+        "name": "wulfgarpro",
+        "avatar": "/storage/avatars/2c7844044ac404d3d6bf00ee3e572db6.png",
+        "rank": 766,
+        "points": 58,
+        "root_owns": 64,
+        "root_bloods_count": 0,
+        "user_bloods_count": 0,
+        "user_owns": 66,
+        "rank_text": "Pro Hacker",
+        "country_name": "Australia",
+        "country_code": "AU",
+        "role": "captain",
+        "team": {
+            "id": 2230,
+            "captain_id": 66487
+        },
+        "public": 0
+    },
+    {
+        "id": 95603,
+        "name": "MasterAge",
+        "avatar": "/storage/avatars/57cdc998dc6dc9a25837ce49ef2bcd92.png",
+        "rank": 738,
+        "points": 67,
+        "root_owns": 52,
+        "root_bloods_count": 0,
+        "user_bloods_count": 0,
+        "user_owns": 53,
+        "rank_text": "Pro Hacker",
+        "country_name": "Australia",
+        "country_code": "AU",
+        "role": "member",
+        "team": {
+            "id": 2230,
+            "captain_id": 66487
+        },
+        "public": 0
+    },
+    {
+        "id": 119828,
+        "name": "chrz",
+        "avatar": "/storage/avatars/0b4f6a78d6ed2428881c9ace60552b1e.png",
+        "rank": 785,
+        "points": 19,
+        "root_owns": 13,
+        "root_bloods_count": 0,
+        "user_bloods_count": 0,
+        "user_owns": 14,
+        "rank_text": "Hacker",
+        "country_name": "Australia",
+        "country_code": "AU",
+        "role": "member",
+        "team": {
+            "id": 2230,
+            "captain_id": 66487
+        },
+        "public": 0
+    },
+    {
+        "id": 508037,
+        "name": "Jordyn",
+        "avatar": "/storage/avatars/f32aaeb8b9618bb3ef44db638c986b41.png",
+        "rank": 791,
+        "points": 3,
+        "root_owns": 0,
+        "root_bloods_count": 0,
+        "user_bloods_count": 0,
+        "user_owns": 0,
+        "rank_text": "Script Kiddie",
+        "country_name": "Australia",
+        "country_code": "AU",
+        "role": "member",
+        "team": {
+            "id": 2230,
+            "captain_id": 66487
+        },
+        "public": 0
+    },
+    {
+        "id": 112936,
+        "name": "dpau36",
+        "avatar": "/storage/avatars/d7379708631b51c845de72995118c7a1.png",
+        "rank": 794,
+        "points": 0,
+        "root_owns": 0,
+        "root_bloods_count": 0,
+        "user_bloods_count": 0,
+        "user_owns": 0,
+        "rank_text": "Noob",
+        "country_name": "Australia",
+        "country_code": "AU",
+        "role": "member",
+        "team": {
+            "id": 2230,
+            "captain_id": 66487
+        },
+        "public": 0
+    },
+    {
+        "id": 184603,
+        "name": "SpyroTheMagic",
+        "avatar": "/storage/avatars/df8d3a933b15018c7299b7e0d08e5886.png",
+        "rank": 794,
+        "points": 0,
+        "root_owns": 4,
+        "root_bloods_count": 0,
+        "user_bloods_count": 0,
+        "user_owns": 5,
+        "rank_text": "Script Kiddie",
+        "country_name": "Australia",
+        "country_code": "AU",
+        "role": "member",
+        "team": {
+            "id": 2230,
+            "captain_id": 66487
+        },
+        "public": 0
+    },
+    {
+        "id": 232918,
+        "name": "livo",
+        "avatar": "/storage/avatars/0e1f3ec787da0c6e5b5e74085be93cf9.png",
+        "rank": 794,
+        "points": 0,
+        "root_owns": 1,
+        "root_bloods_count": 0,
+        "user_bloods_count": 0,
+        "user_owns": 1,
+        "rank_text": "Noob",
+        "country_name": "Unknown",
+        "country_code": null,
+        "role": "member",
+        "team": {
+            "id": 2230,
+            "captain_id": 66487
+        },
+        "public": 0
+    },
+    {
+        "id": 271915,
+        "name": "6502",
+        "avatar": "/storage/avatars/b133943758bba5a54c98988347fb66fc.png",
+        "rank": 794,
+        "points": 0,
+        "root_owns": 0,
+        "root_bloods_count": 0,
+        "user_bloods_count": 0,
+        "user_owns": 0,
+        "rank_text": "Noob",
+        "country_name": "Unknown",
+        "country_code": null,
+        "role": "member",
+        "team": {
+            "id": 2230,
+            "captain_id": 66487
+        },
+        "public": 0
+    },
+    {
+        "id": 351563,
+        "name": "wombat791",
+        "avatar": "/storage/avatars/45b21ed9fa9695464dc0a66e40faad07.png",
+        "rank": 794,
+        "points": 0,
+        "root_owns": 0,
+        "root_bloods_count": 0,
+        "user_bloods_count": 0,
+        "user_owns": 0,
+        "rank_text": "Noob",
+        "country_name": "Unknown",
+        "country_code": null,
+        "role": "member",
+        "team": {
+            "id": 2230,
+            "captain_id": 66487
+        },
+        "public": 0
+    },
+    {
+        "id": 540461,
+        "name": "tomato150",
+        "avatar": "/storage/avatars/eedf7b5e3e7c7393d5c46262e6770b9b.png",
+        "rank": 794,
+        "points": 0,
+        "root_owns": 0,
+        "root_bloods_count": 0,
+        "user_bloods_count": 0,
+        "user_owns": 0,
+        "rank_text": "Noob",
+        "country_name": "Unknown",
+        "country_code": null,
+        "role": "member",
+        "team": {
+            "id": 2230,
+            "captain_id": 66487
+        },
+        "public": 0
+    },
+    {
+        "id": 540518,
+        "name": "hbriese",
+        "avatar": "/storage/avatars/275a51fda8315b02240a092a887aac91.png",
+        "rank": 794,
+        "points": 0,
+        "root_owns": 0,
+        "root_bloods_count": 0,
+        "user_bloods_count": 0,
+        "user_owns": 0,
+        "rank_text": "Noob",
+        "country_name": "Australia",
+        "country_code": "AU",
+        "role": "member",
+        "team": {
+            "id": 2230,
+            "captain_id": 66487
+        },
+        "public": 1
+    }
+]

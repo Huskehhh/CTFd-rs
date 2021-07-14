@@ -2,26 +2,26 @@
     "profile": {
         "activity": [
             {
-                "date": "2020-11-14T21:05:07.000000Z",
-                "date_diff": "2 days ago",
+                "date": "2021-07-14T12:47:47.000000Z",
+                "date_diff": "48 minutes ago",
                 "object_type": "machine",
                 "type": "root",
                 "first_blood": false,
-                "id": 298,
-                "name": "Laboratory",
+                "id": 344,
+                "name": "Love",
                 "points": 20,
-                "machine_avatar": "/storage/avatars/97b6b79de818229932e1d9d645b50f62_thumb.png"
+                "machine_avatar": "/storage/avatars/c00774d8d806b82c709c596937a92d14_thumb.png"
             },
             {
-                "date": "2020-11-14T21:03:11.000000Z",
-                "date_diff": "2 days ago",
+                "date": "2021-07-13T14:15:05.000000Z",
+                "date_diff": "23 hours ago",
                 "object_type": "machine",
                 "type": "user",
                 "first_blood": false,
-                "id": 298,
-                "name": "Laboratory",
+                "id": 344,
+                "name": "Love",
                 "points": 10,
-                "machine_avatar": "/storage/avatars/97b6b79de818229932e1d9d645b50f62_thumb.png"
+                "machine_avatar": "/storage/avatars/c00774d8d806b82c709c596937a92d14_thumb.png"
             }
         ]
     }

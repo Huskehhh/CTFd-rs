@@ -156,7 +156,7 @@ pub async fn process_new_solves(api: &HTBApi) -> Result<(), Error> {
     let team_members = &api.list_team_members().await?;
     let connection = get_pooled_connection().await?;
 
-    for member in &team_members.data {
+    for member in team_members {
         let user_activity = &api.get_user_activity(member.id).await?;
 
         for solve in &user_activity.profile.activity {

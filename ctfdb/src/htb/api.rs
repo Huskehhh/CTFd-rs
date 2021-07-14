@@ -73,7 +73,7 @@ impl HTBApi {
         Ok(active_machines)
     }
 
-    pub async fn list_team_members(&self) -> Result<ListTeamMembers, Error> {
+    pub async fn list_team_members(&self) -> Result<Vec<ListTeamMembersData>, Error> {
         let url = format!("{}/team/members/{}", API_URL, &self.config.team_id);
 
         let team_members = self
@@ -81,7 +81,7 @@ impl HTBApi {
             .get(&url)
             .send()
             .await?
-            .json::<ListTeamMembers>()
+            .json::<Vec<ListTeamMembersData>>()
             .await?;
 
         Ok(team_members)
@@ -90,7 +90,7 @@ impl HTBApi {
     pub async fn get_team_statistics(&self) -> Result<GetTeamStatistics, Error> {
         let url = format!("{}/team/stats/owns/{}", API_URL, &self.config.team_id);
 
-        let team_members = self
+        let team_stats = self
             .client
             .get(&url)
             .send()
@@ -98,7 +98,7 @@ impl HTBApi {
             .json::<GetTeamStatistics>()
             .await?;
 
-        Ok(team_members)
+        Ok(team_stats)
     }
 
     pub async fn get_challenge_categories(&self) -> Result<ListChallengeCategories, Error> {
@@ -116,9 +116,9 @@ impl HTBApi {
     }
 
     pub async fn get_user_activity(&self, user_id: i32) -> Result<UserActivity, Error> {
-         let url = format!("{}/user/profile/activity/{}", API_URL, user_id);
+        let url = format!("{}/user/profile/activity/{}", API_URL, user_id);
 
-         let users_recent_activity = self
+        let users_recent_activity = self
             .client
             .get(&url)
             .send()

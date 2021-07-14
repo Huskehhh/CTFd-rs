@@ -248,9 +248,21 @@ mod tests {
 
         let activity = &get_user_activity.profile.activity[0];
 
-        assert_eq!(activity.id, 298);
+        assert_eq!(activity.id, 344);
         assert_eq!(activity.solve_type, "root");
-        assert_eq!(activity.name, "Laboratory");
+        assert_eq!(activity.name, "Love");
+    }
+
+    #[test]
+    fn test_deserialise_team_members() {
+        let data = read_file_to_string("get_team_members.json");
+
+        let team_members: Vec<ListTeamMembersData> = serde_json::from_str(&data).unwrap();
+
+        let member = &team_members[0];
+
+        assert_eq!(member.id, 66487);
+        assert_eq!(member.name, "wulfgarpro");
     }
 
     #[test]
