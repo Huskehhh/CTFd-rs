@@ -116,7 +116,7 @@ impl HTBApi {
     }
 
     pub async fn get_user_activity(&self, user_id: i32) -> Result<UserActivity, Error> {
-         let url = format!("{}/profile/activity/{}", API_URL, user_id);
+         let url = format!("{}/user/profile/activity/{}", API_URL, user_id);
 
          let users_recent_activity = self
             .client
