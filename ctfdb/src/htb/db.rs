@@ -164,6 +164,7 @@ pub async fn process_new_solves(api: &HTBApi) -> Result<(), Error> {
                 if !is_challenge_solved_and_not_announced_for_user(
                     member.id,
                     challenge.htb_id,
+                    &solve.solve_type,
                     &connection,
                 ) {
                     println!(
@@ -318,11 +319,13 @@ pub async fn add_challenge_announced_for_user(
 pub fn is_challenge_solved_and_not_announced_for_user(
     user_id: i32,
     challenge_id: i32,
+    solve_type: &str,
     connection: &MysqlConnection,
 ) -> bool {
     if let Ok(solves) = htb_solve_dsl::htb_solves
         .filter(htb_solve_dsl::user_id.eq(user_id))
         .filter(htb_solve_dsl::challenge_id.eq(challenge_id))
+        .filter(htb_solve_dsl::solve_type.eq(solve_type))
         .filter(htb_solve_dsl::announced.eq(true))
         .limit(1)
         .load::<HTBSolve>(connection)
