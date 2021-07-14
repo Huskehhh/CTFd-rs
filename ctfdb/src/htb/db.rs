@@ -240,7 +240,10 @@ pub async fn get_solving_users_for_challenge(challenge_id: i32) -> Result<Vec<St
     }
 
     for solve in solves {
-        solving_users.push(solve.username);
+        // This can be doubled because user and root on machines are stored seperate
+        if !solving_users.contains(&solve.username) {
+            solving_users.push(solve.username);
+        }
     }
 
     Ok(solving_users)
