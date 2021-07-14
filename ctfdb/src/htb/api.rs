@@ -101,23 +101,6 @@ impl HTBApi {
         Ok(team_members)
     }
 
-    pub async fn get_recent_team_activity(&self) -> Result<Vec<GetRecentTeamActivityData>, Error> {
-        let url = format!(
-            "{}/team/activity/{}?n_past_days=90",
-            API_URL, &self.config.team_id
-        );
-
-        let team_members = self
-            .client
-            .get(&url)
-            .send()
-            .await?
-            .json::<Vec<GetRecentTeamActivityData>>()
-            .await?;
-
-        Ok(team_members)
-    }
-
     pub async fn get_challenge_categories(&self) -> Result<ListChallengeCategories, Error> {
         let url = format!("{}/challenge/categories/list", API_URL);
 
@@ -130,6 +113,20 @@ impl HTBApi {
             .await?;
 
         Ok(challenge_categories)
+    }
+
+    pub async fn get_user_activity(&self, user_id: i32) -> Result<UserActivity, Error> {
+         let url = format!("{}/profile/activity/{}", API_URL, user_id);
+
+         let users_recent_activity = self
+            .client
+            .get(&url)
+            .send()
+            .await?
+            .json::<UserActivity>()
+            .await?;
+
+        Ok(users_recent_activity)
     }
 
     pub async fn handle_token_renewal(&mut self) -> Result<(), Error> {
