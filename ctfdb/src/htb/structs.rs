@@ -8,12 +8,35 @@ use crate::models::HTBChallenge;
 // All information from https://github.com/Propolisa/htb-api-docs
 
 #[derive(Debug, Deserialize)]
+pub struct UserActivity {
+    pub profile: UserActivityData,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UserActivityData {
+    pub activity: Vec<ActivityData>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ActivityData {
+    pub date: String,
+    pub object_type: String,
+    #[serde(rename = "type")]
+    pub solve_type: String,
+    pub id: i32,
+    pub name: String,
+    pub points: i32,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct GetTeamProfile {
     pub id: i32,
     pub name: String,
     pub points: i32,
 }
 
+// This is currently unused, it has been replaced by retrieving all users of the team
+// and iterating through their individual activities to get the solve as soon as it happens
 #[derive(Debug, Deserialize)]
 pub struct GetRecentTeamActivityData {
     pub user: UserData,
@@ -48,13 +71,13 @@ pub struct ListTeamMembers {
 
 #[derive(Debug, Deserialize)]
 pub struct ListTeamMembersData {
-    id: i32,
-    name: String,
-    rank: i32,
-    points: i32,
-    root_owns: i32,
-    user_owns: i32,
-    rank_text: String,
+    pub id: i32,
+    pub name: String,
+    pub rank: i32,
+    pub points: i32,
+    pub root_owns: i32,
+    pub user_owns: i32,
+    pub rank_text: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -215,6 +238,19 @@ mod tests {
         let login_response: LoginResponse = serde_json::from_str(&data).unwrap();
 
         assert_eq!(login_response.message.access_token, "abcd");
+    }
+
+    #[test]
+    fn test_deserialise_user_activity() {
+        let data = read_file_to_string("get_user_activity.json");
+
+        let get_user_activity: UserActivity = serde_json::from_str(&data).unwrap();
+
+        let activity = &get_user_activity.profile.activity[0];
+
+        assert_eq!(activity.id, 298);
+        assert_eq!(activity.solve_type, "root");
+        assert_eq!(activity.name, "Laboratory");
     }
 
     #[test]

@@ -13,13 +13,13 @@ use crate::{
     schema::htb_solves::dsl as htb_solve_dsl,
 };
 
-use super::structs::{GetRecentTeamActivityData, HTBApi, ListActiveChallengesData};
+use super::structs::{ActivityData, HTBApi, ListActiveChallengesData};
 
 pub static CATEGORY_CACHE: Lazy<DashMap<i32, String>> = Lazy::new(DashMap::new);
 
 pub async fn map_htb_response_to_challenge(
     connection: &PooledMysqlConnection,
-    challenge: &GetRecentTeamActivityData,
+    challenge: &ActivityData,
 ) -> Result<HTBChallenge, Error> {
     let result = htb_dsl::htb_challenges
         .filter(htb_dsl::htb_id.eq(challenge.id))
@@ -153,28 +153,32 @@ pub async fn remove_working(username: String, challenge_name: &str) -> Result<()
 }
 
 pub async fn process_new_solves(api: &HTBApi) -> Result<(), Error> {
-    let recent_activity = api.get_recent_team_activity().await?;
+    let team_members = &api.list_team_members().await?;
     let connection = get_pooled_connection().await?;
 
-    for solve in recent_activity {
-        if let Ok(challenge) = map_htb_response_to_challenge(&connection, &solve).await {
-            if !is_challenge_solved_and_not_announced_for_user(
-                solve.user.id,
-                challenge.htb_id,
-                &connection,
-            ) {
-                println!(
-                    "HTB: Adding solve for user {}, challenge: {}",
-                    solve.user.name, solve.name
-                );
-                add_challenge_solved_for_user(
-                    solve.user.id,
-                    solve.user.name,
-                    solve.date,
-                    solve.id,
-                    solve.solve_type,
+    for member in &team_members.data {
+        let user_activity = &api.get_user_activity(member.id).await?;
+
+        for solve in &user_activity.profile.activity {
+            if let Ok(challenge) = map_htb_response_to_challenge(&connection, &solve).await {
+                if !is_challenge_solved_and_not_announced_for_user(
+                    member.id,
+                    challenge.htb_id,
                     &connection,
-                )?;
+                ) {
+                    println!(
+                        "HTB: Adding solve for user {}, challenge: {}",
+                        member.name, solve.name
+                    );
+                    add_challenge_solved_for_user(
+                        member.id,
+                        &member.name,
+                        &solve.date,
+                        solve.id,
+                        &solve.solve_type,
+                        &connection,
+                    )?;
+                }
             }
         }
     }
@@ -260,10 +264,10 @@ pub fn get_unannounced_solves(connection: &PooledMysqlConnection) -> Result<Vec<
 
 pub fn add_challenge_solved_for_user(
     user_id: i32,
-    username: String,
-    solve_date: String,
+    username: &str,
+    solve_date: &str,
     challenge_id: i32,
-    solve_type: String,
+    solve_type: &str,
     connection: &MysqlConnection,
 ) -> Result<(), Error> {
     let challenges = get_challenge_from_id_with_connection(challenge_id, &connection)?;
