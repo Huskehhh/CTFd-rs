@@ -137,6 +137,11 @@ pub async fn create_embed_of_htb_challenge_solved(
                 e.title(content);
                 e.field("📚 Category", &challenge_category_name, true);
                 e.field("💰 Points", &challenge.points, true);
+
+                if let Some(avatar) = &solve.challenge.machine_avatar {
+                    e.image(format!("https://www.hackthebox.eu/{}", avatar));
+                }
+
                 e
             })
         })

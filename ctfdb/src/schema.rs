@@ -35,6 +35,7 @@ table! {
         release_date -> Text,
         challenge_category -> Integer,
         working -> Nullable<Text>,
+        machine_avatar -> Nullable<Text>,
     }
 }
 

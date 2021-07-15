@@ -44,6 +44,7 @@ pub struct HTBChallenge {
     pub release_date: String,
     pub challenge_category: i32,
     pub working: Option<String>,
+    pub machine_avatar: Option<String>,
 }
 
 #[derive(Debug, Queryable, Clone)]

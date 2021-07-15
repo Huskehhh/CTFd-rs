@@ -70,7 +70,7 @@ pub fn get_challenge_from_id_with_connection(
 
 pub async fn get_challenge_from_id(id: i32) -> Result<Vec<HTBChallenge>, Error> {
     let connection = get_pooled_connection().await?;
-    return get_challenge_from_id_with_connection(id, &connection);
+    get_challenge_from_id_with_connection(id, &connection)
 }
 
 pub async fn search_for_challenge_by_name(name: &str) -> Result<Vec<HTBChallenge>, Error> {
@@ -358,6 +358,7 @@ pub async fn update_htb_challenges_and_scores(htb_api: &HTBApi) -> Result<(), Er
             points: machine_points,
             release_date: machine.release,
             challenge_category_id: 100,
+            machine_avatar: Some(machine.avatar),
         };
 
         ensure_challenge_exists_otherwise_add(&mapped_to_challenge_data, &connection).await?;
@@ -386,6 +387,7 @@ pub async fn ensure_challenge_exists_otherwise_add(
                 htb_dsl::points.eq(&challenge.points),
                 htb_dsl::release_date.eq(&challenge.release_date),
                 htb_dsl::challenge_category.eq(&challenge.challenge_category_id),
+                htb_dsl::machine_avatar.eq(&challenge.machine_avatar),
             ))
             .execute(connection)?;
 
