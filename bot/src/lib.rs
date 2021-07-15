@@ -139,7 +139,7 @@ pub async fn create_embed_of_htb_challenge_solved(
                 e.field("💰 Points", &challenge.points, true);
 
                 if let Some(avatar) = &solve.challenge.machine_avatar {
-                    e.image(format!("https://www.hackthebox.eu/{}", avatar));
+                    e.thumbnail(format!("https://www.hackthebox.eu/{}", avatar));
                 }
 
                 e
