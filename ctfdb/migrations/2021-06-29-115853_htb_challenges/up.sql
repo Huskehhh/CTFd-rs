@@ -7,5 +7,6 @@ CREATE TABLE `htb_challenges` (
     `release_date` TEXT NOT NULL,
     `challenge_category` INT NOT NULL,
     `working` TEXT NULL,
+    `machine_avatar` TEXT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;

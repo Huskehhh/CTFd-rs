@@ -93,6 +93,7 @@ pub struct ListActiveChallengesData {
     pub points: String,
     pub release_date: String,
     pub challenge_category_id: i32,
+    pub machine_avatar: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -108,6 +109,7 @@ pub struct ListActiveMachinesData {
     pub difficulty: String,
     pub points: i32,
     pub release: String,
+    pub avatar: String,
 }
 
 #[derive(Debug, Deserialize)]
