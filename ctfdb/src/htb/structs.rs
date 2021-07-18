@@ -133,6 +133,17 @@ pub struct LoginResponseData {
     pub access_token: String,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct RankStats {
+    pub data: RankStatsData,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RankStatsData {
+    pub rank: i32,
+    pub points: i32,
+}
+
 #[derive(Debug)]
 pub struct SolveToAnnounce {
     pub solver: String,

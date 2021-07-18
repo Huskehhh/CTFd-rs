@@ -57,3 +57,11 @@ pub struct HTBSolve {
     pub announced: bool,
     pub solved_time: NaiveDateTime,
 }
+
+#[derive(Debug, Queryable, Clone)]
+pub struct HTBRank {
+    pub entry_id: i32,
+    pub rank: i32,
+    pub points: i32,
+    pub timestamp: NaiveDateTime,
+}

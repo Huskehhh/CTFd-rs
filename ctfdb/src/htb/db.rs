@@ -6,14 +6,15 @@ use failure::Error;
 use once_cell::sync::Lazy;
 
 use crate::htb::structs::SolveToAnnounce;
+use crate::models::HTBRank;
 use crate::models::HTBSolve;
 use crate::PooledMysqlConnection;
 use crate::{
     get_pooled_connection, models::HTBChallenge, schema::htb_challenges::dsl as htb_dsl,
-    schema::htb_solves::dsl as htb_solve_dsl,
+    schema::htb_solves::dsl as htb_solve_dsl, schema::htb_team_rank::dsl as htb_rank_dsl,
 };
 
-use super::structs::{ActivityData, HTBApi, ListActiveChallengesData};
+use super::structs::{ActivityData, HTBApi, ListActiveChallengesData, RankStats};
 
 pub static CATEGORY_CACHE: Lazy<DashMap<i32, String>> = Lazy::new(DashMap::new);
 
@@ -395,6 +396,17 @@ pub async fn ensure_challenge_exists_otherwise_add(
     }
 
     Ok(false)
+}
+
+pub async fn get_latest_rank_from_db() -> Result<HTBRank, Error> {
+    let connection = get_pooled_connection().await?;
+
+    let solves = htb_rank_dsl::htb_team_rank
+        .order(htb_rank_dsl::entry_id.desc())
+        .limit(1)
+        .load::<HTBRank>(&connection)?;
+
+    Ok(solves[0].clone())
 }
 
 #[tokio::main]
