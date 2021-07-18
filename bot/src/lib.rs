@@ -232,12 +232,11 @@ pub async fn create_embed_of_team_stats(
     channel_id: &ChannelId,
     http: &Http,
 ) -> CommandResult {
-
     let rank_emoji;
     if stats.rank > old_stats.rank {
-         rank_emoji = "📈";
+        rank_emoji = "📈";
     } else {
-       rank_emoji = "📉";
+        rank_emoji = "📉";
     }
 
     channel_id

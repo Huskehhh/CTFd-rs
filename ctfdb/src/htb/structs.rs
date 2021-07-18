@@ -279,6 +279,16 @@ mod tests {
     }
 
     #[test]
+    fn test_deserialise_latest_team_stats() {
+        let data = read_file_to_string("latest_team_stats.json");
+
+        let team_stats: RankStats = serde_json::from_str(&data).unwrap();
+
+        assert_eq!(team_stats.data.rank, 381);
+        assert_eq!(team_stats.data.points, 101);
+    }
+
+    #[test]
     fn test_deserialise_jwt() {
         let token = read_file_to_string("jwt.txt");
 
