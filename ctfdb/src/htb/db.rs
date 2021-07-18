@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::{Local, NaiveDateTime};
 use dashmap::DashMap;
 use diesel::{insert_into, prelude::*, update};
 use diesel::{QueryDsl, RunQueryDsl};
@@ -398,6 +398,19 @@ pub async fn ensure_challenge_exists_otherwise_add(
     Ok(false)
 }
 
+pub async fn insert_rank_into_db(rank_stats: &RankStats) -> Result<(), Error> {
+    let connection = get_pooled_connection().await?;
+
+    insert_into(htb_rank_dsl::htb_team_rank)
+        .values((
+            htb_rank_dsl::rank.eq(&rank_stats.data.rank),
+            htb_rank_dsl::points.eq(&rank_stats.data.points),
+        ))
+        .execute(&connection)?;
+
+    Ok(())
+}
+
 pub async fn get_latest_rank_from_db() -> Result<HTBRank, Error> {
     let connection = get_pooled_connection().await?;
 
@@ -406,7 +419,19 @@ pub async fn get_latest_rank_from_db() -> Result<HTBRank, Error> {
         .limit(1)
         .load::<HTBRank>(&connection)?;
 
-    Ok(solves[0].clone())
+    match solves.first() {
+        Some(first) => {
+            return Ok(first.clone());
+        }
+        None => {
+            return Ok(HTBRank {
+                entry_id: 0,
+                rank: 0,
+                points: 0,
+                timestamp: Local::now().naive_local(),
+            });
+        }
+    }
 }
 
 #[tokio::main]
