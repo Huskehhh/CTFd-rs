@@ -153,7 +153,7 @@ async fn solves(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
                 .await?;
         }
     } else {
-        msg.reply(&ctx.http, "Usage: ``!htb solves \"Challenge name\"``")
+        msg.reply(&ctx.http, "Usage: ``!htb solves \"Username\"``")
             .await?;
     }
 
