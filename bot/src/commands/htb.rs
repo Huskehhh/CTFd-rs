@@ -12,10 +12,10 @@ use crate::populate_embed_from_htb_challenge;
 #[group]
 #[commands(working, giveup, search, solves)]
 #[prefixes("htb", "h")]
-pub struct Hacker;
+pub struct HTBer;
 
 #[command]
-#[allowed_roles("hacker")]
+#[allowed_roles("CTFer")]
 #[aliases("w")]
 #[example("\"Challenge name\"")]
 #[description = "Marks you as working on the provided challenge"]
@@ -61,7 +61,7 @@ async fn working(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
 
 // For lack of a better name...
 #[command]
-#[allowed_roles("hacker")]
+#[allowed_roles("CTFer")]
 #[aliases("g")]
 #[example("\"Challenge name\"")]
 #[description = "Removes you from working on the given challenge"]
@@ -89,7 +89,7 @@ async fn giveup(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
-#[allowed_roles("hacker")]
+#[allowed_roles("CTFer")]
 #[example("\"Challenge name\"")]
 #[description = "Searches for the status of the given challenge"]
 async fn search(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -122,7 +122,7 @@ async fn search(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 }
 
 #[command]
-#[allowed_roles("hacker")]
+#[allowed_roles("CTFer")]
 #[example("\"Username\"")]
 #[description = "Searches for solves of a given user"]
 async fn solves(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {

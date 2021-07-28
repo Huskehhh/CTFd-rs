@@ -421,15 +421,15 @@ pub async fn get_latest_rank_from_db() -> Result<HTBRank, Error> {
 
     match solves.first() {
         Some(first) => {
-            return Ok(first.clone());
+            Ok(first.clone())
         }
         None => {
-            return Ok(HTBRank {
+            Ok(HTBRank {
                 entry_id: 0,
                 rank: 0,
                 points: 0,
                 timestamp: Local::now().naive_local(),
-            });
+            })
         }
     }
 }

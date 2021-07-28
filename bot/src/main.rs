@@ -124,7 +124,7 @@ async fn main() {
         .on_dispatch_error(dispatch_error)
         .help(&HELP)
         .group(&CTFER_GROUP)
-        .group(&HACKER_GROUP);
+        .group(&HTBER_GROUP);
 
     let mut client = Client::builder(&token)
         .framework(framework)

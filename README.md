@@ -81,9 +81,9 @@ Available prefixes are ``!`` ``.`` ``~``
 | !ctf [giveup/g] "*challenge*"                                               | Removes you from working on the given challenge                                                | CTFer      |
 | !ctf [search] "*challenge*"                                                 | Searches for the given challenge and returns the status of it                                  | CTFer      |
 | !ctf stats                                                                  | Displays the current stats for all active CTFs                                                 | CTFer      |
-| !htb [working/w] "*challenge*"                                              | Marks you as working on the given challenge                                                    | hacker     |
-| !htb [giveup/g] "*challenge*"                                               | Removes you from working on the given challenge                                                | hacker     |
-| !htb [search] "*challenge*"                                                 | Searches for the given challenge and returns the status of it                                  | hacker     |
+| !htb [working/w] "*challenge*"                                              | Marks you as working on the given challenge                                                    | CTFer     |
+| !htb [giveup/g] "*challenge*"                                               | Removes you from working on the given challenge                                                | CTFer     |
+| !htb [search] "*challenge*"                                                 | Searches for the given challenge and returns the status of it                                  | CTFer     |
 
 ### rest-api
 
