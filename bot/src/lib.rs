@@ -162,7 +162,7 @@ async fn process_solve(
     if channel_id.0 != 0 {
         if let Err(why) = create_embed_of_challenge_solved(
             &solve,
-            &channel_id,
+            channel_id,
             http,
             team_stats.place,
             team_stats.score,
@@ -189,7 +189,7 @@ async fn process_htb_solve(
 ) -> Result<(), Error> {
     // Only try to create an embed if the channel ID isn't 0
     if channel_id.0 != 0 {
-        if let Err(why) = create_embed_of_htb_challenge_solved(&solve, &channel_id, http).await {
+        if let Err(why) = create_embed_of_htb_challenge_solved(&solve, channel_id, http).await {
             return Err(format_err!(
                 "Error when creating embed for challenge solve: {}",
                 why
@@ -217,7 +217,7 @@ pub async fn process_rank_status(
         insert_rank_into_db(&latest_rank).await?;
 
         if let Err(why) =
-            create_embed_of_team_stats(&latest_rank.data, &current_rank, &channel_id, &http).await
+            create_embed_of_team_stats(&latest_rank.data, &current_rank, channel_id, http).await
         {
             eprintln!("Error when creating embed of team stats... {}", why);
         }
@@ -344,7 +344,7 @@ pub async fn htb_poller_task(
                 println!("HTB POLLER: No new solves found for HTB.");
             } else {
                 for solve in solves {
-                    match process_htb_solve(solve, &channel_id, http).await {
+                    match process_htb_solve(solve, channel_id, http).await {
                         Ok(_) => {
                             println!("HTB POLLER: New solve processed.");
                         }
