@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REGISTRY_URL="dagobah:5000"
+REGISTRY_URL="registry.husk.pro"
 
 VERSION=0.0.1
 
@@ -14,7 +14,7 @@ docker build -f rest-api.Dockerfile -t $REST_API .
 
 pushd frontend
 npm run build
-docker build -f frontend.Dockerfile -t $FRONTEND
+docker build -f frontend.Dockerfile -t $FRONTEND .
 popd
 
 echo "Pushing images to registry"
