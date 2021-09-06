@@ -8,7 +8,7 @@ edition = "2018"
 dotenv = "0.15"
 failure = "0.1"
 ctfdb = { path="../ctfdb" }
-futures = "0.3.15"
+futures = "0.3.17"
 
 [dependencies.serenity]
 version = "0.10"
