@@ -2,7 +2,7 @@
 
 REGISTRY_URL="registry.husk.pro"
 
-VERSION=0.0.1
+VERSION=0.1.1
 
 BOT="$REGISTRY_URL/ctf_bot:$VERSION"
 REST_API="$REGISTRY_URL/ctf_rest_api:$VERSION"
