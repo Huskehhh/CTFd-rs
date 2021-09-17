@@ -227,7 +227,7 @@ pub async fn add_working(username: String, challenge_name: &str) -> Result<(), E
         .expect("Error when getting pooled connection");
 
     // First load the challenge by that name
-    let challenges = get_challenge_from_name(&challenge_name, &connection)?;
+    let challenges = get_challenge_from_name(challenge_name, &connection)?;
 
     if let Some(challenge) = challenges.first() {
         let challenge_id = challenge.id;
@@ -258,7 +258,7 @@ pub async fn remove_working(username: String, challenge_name: &str) -> Result<()
     let connection = get_pooled_connection().await?;
 
     // First load the challenge by that name
-    let challenges = get_challenge_from_name(&challenge_name, &connection)?;
+    let challenges = get_challenge_from_name(challenge_name, &connection)?;
 
     if let Some(challenge) = challenges.first() {
         let challenge_id = challenge.id;

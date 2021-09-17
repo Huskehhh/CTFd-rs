@@ -89,7 +89,7 @@ pub async fn add_working(username: String, challenge_name: &str) -> Result<(), E
         .expect("Error when getting pooled connection");
 
     // First load the challenge by that name
-    let challenges = get_challenge_from_name(&challenge_name, &connection)?;
+    let challenges = get_challenge_from_name(challenge_name, &connection)?;
 
     if let Some(challenge) = challenges.first() {
         let challenge_id = challenge.htb_id;
@@ -120,7 +120,7 @@ pub async fn remove_working(username: String, challenge_name: &str) -> Result<()
     let connection = get_pooled_connection().await?;
 
     // First load the challenge by that name
-    let challenges = get_challenge_from_name(&challenge_name, &connection)?;
+    let challenges = get_challenge_from_name(challenge_name, &connection)?;
 
     if let Some(challenge) = challenges.first() {
         let challenge_id = challenge.htb_id;
@@ -161,7 +161,7 @@ pub async fn process_new_solves(api: &HTBApi) -> Result<(), Error> {
         let user_activity = &api.get_user_activity(member.id).await?;
 
         for solve in &user_activity.profile.activity {
-            if let Ok(challenge) = map_htb_response_to_challenge(&connection, &solve).await {
+            if let Ok(challenge) = map_htb_response_to_challenge(&connection, solve).await {
                 if !is_challenge_solved_and_not_announced_for_user(
                     member.id,
                     challenge.htb_id,
@@ -275,11 +275,11 @@ pub fn add_challenge_solved_for_user(
     solve_type: &str,
     connection: &MysqlConnection,
 ) -> Result<(), Error> {
-    let challenges = get_challenge_from_id_with_connection(challenge_id, &connection)?;
+    let challenges = get_challenge_from_id_with_connection(challenge_id, connection)?;
 
     if !challenges.is_empty() {
         let challenge = &challenges[0];
-        let solved_time = NaiveDateTime::parse_from_str(&solve_date, "%Y-%m-%dT%H:%M:%S.%Z")?;
+        let solved_time = NaiveDateTime::parse_from_str(solve_date, "%Y-%m-%dT%H:%M:%S.%Z")?;
 
         insert_into(htb_solve_dsl::htb_solves)
             .values((
