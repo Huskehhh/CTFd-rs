@@ -1,20 +1,8 @@
 version: 2
 updates:
-# Maintain dependencies for the bot module
+# Maintain dependencies for the rust modules
 - package-ecosystem: cargo
-  directory: "/bot"
-  schedule:
-    interval: weekly
-
-# Maintain dependencies for the ctfdb module
-- package-ecosystem: cargo
-  directory: "/ctfdb"
-  schedule:
-    interval: weekly
-
-# Maintain dependencies for the rest-api module
-- package-ecosystem: cargo
-  directory: "/rest-api"
+  directory: "/"
   schedule:
     interval: weekly
 
