@@ -1,0 +1,52 @@
+version: '3'
+services:
+  ctf_bot:
+    build:
+      context: .
+      dockerfile: bot.Dockerfile
+    depends_on: 
+      - mariadb
+    restart: unless-stopped
+    container_name: ctfd_rs_bot_dev
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      OWNER_ID: ${OWNER_ID}
+      HTB_TEAM_ID: ${HTB_TEAM_ID}
+      HTB_CHANNEL_ID: ${HTB_CHANNEL_ID}
+      HTB_EMAIL: ${HTB_EMAIL}
+      HTB_PASSWORD: ${HTB_PASSWORD}
+  ctf_rest_api:
+    build:
+      context: .
+      dockerfile: rest-api.Dockerfile
+    depends_on: 
+      - mariadb
+    restart: unless-stopped
+    container_name: ctfd_rs_api_dev
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      BIND_ADDRESS: 0.0.0.0:8010
+      ALLOWED_ORIGIN: ${ALLOWED_ORIGIN}
+  ctf_frontend:
+    build:
+      context: frontend/
+      dockerfile: frontend.Dockerfile
+    depends_on: 
+      - ctf_rest_api
+    restart: unless-stopped
+    container_name: ctfd_rs_ui_dev
+    environment:
+      REACT_APP_API_URL: ${REACT_APP_API_URL}
+  mariadb:
+    container_name: ctfd_rs_db
+    image: mariadb:latest
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MARIADB_USER: ctfd_bot_dev
+      MARIADB_DATABASE: ctfd_bot_dev
+networks:
+  default:
+    external:
+      name: dev
