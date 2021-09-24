@@ -324,6 +324,8 @@ async fn load_active_ctfdservices() -> Result<(), Error> {
 
         let service = new_ctfdservice(service_config).await;
 
+        println!("Loading service into cache with id: {}", service.get_id());
+
         // Insert to cache
         CTF_CACHE.insert(service.get_id(), service);
     }
@@ -357,6 +359,8 @@ pub async fn check_for_new_solves(ctf: &Ctf) -> Result<Vec<Challenge>, Error> {
                 new_solves.push(challenge);
             }
         }
+
+        return Ok(new_solves);
     }
 
     Err(format_err!(
