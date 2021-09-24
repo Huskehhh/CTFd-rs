@@ -270,30 +270,28 @@ pub async fn new_solve_poller_task(http: &Http) {
         println!("POLLER: Polling CTF: {} for new solves...", ctf.name);
         let solves = check_for_new_solves(&ctf).await;
         let channel_id = ChannelId(ctf.channel_id as u64);
-        let ctfd_service = CTF_CACHE
-            .get(&ctf.id)
-            .expect("No CTFDService with this CTF ID...");
-
-        match solves {
-            Ok(solves) => {
-                if solves.is_empty() {
-                    println!("POLLER: No new solves found for: {}", ctf.name);
-                } else {
-                    for solve in solves {
-                        match process_solve(&ctfd_service, solve, &channel_id, http).await {
-                            Ok(_) => {
-                                println!("POLLER: New solve processed.");
-                                break;
-                            }
-                            Err(why) => {
-                                eprintln!("Error when processing solve... {}", why);
+        if let Some(ctfd_service) = CTF_CACHE.get(&ctf.id) {
+            match solves {
+                Ok(solves) => {
+                    if solves.is_empty() {
+                        println!("POLLER: No new solves found for: {}", ctf.name);
+                    } else {
+                        for solve in solves {
+                            match process_solve(&ctfd_service, solve, &channel_id, http).await {
+                                Ok(_) => {
+                                    println!("POLLER: New solve processed.");
+                                    break;
+                                }
+                                Err(why) => {
+                                    eprintln!("Error when processing solve... {}", why);
+                                }
                             }
                         }
                     }
                 }
-            }
-            Err(why) => {
-                eprintln!("POLLER: Error when fetching new solves {}", why);
+                Err(why) => {
+                    eprintln!("POLLER: Error when fetching new solves {}", why);
+                }
             }
         }
     }
