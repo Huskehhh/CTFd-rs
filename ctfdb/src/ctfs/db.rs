@@ -415,6 +415,7 @@ pub async fn ensure_challenge_exists_otherwise_add(
                 chall_dsl::name.eq(&challenge.name),
                 chall_dsl::points.eq(&challenge.value),
                 chall_dsl::solved.eq(false),
+                chall_dsl::announced_solve.eq(false),
             ))
             .execute(connection)?;
 

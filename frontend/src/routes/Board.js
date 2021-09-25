@@ -20,7 +20,7 @@ const TITLE_DONE = 'Done';
 const CLASS_TASK = 'taskCard';
 const CLASS_COLUMN = 'boardColumn';
 
-const API_URL = process.env.API_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
 function TaskCard(props) {
     const task = props.task;
