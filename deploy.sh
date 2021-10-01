@@ -15,7 +15,6 @@ docker buildx build -f bot.Dockerfile -t $BOT --platform $PLATFORM .
 docker buildx build -f rest-api.Dockerfile -t $REST_API --platform $PLATFORM .
 
 pushd frontend
-npm run build
 docker buildx build -f frontend.Dockerfile -t $FRONTEND --platform $PLATFORM .
 popd
 

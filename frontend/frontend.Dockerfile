@@ -1,5 +1,10 @@
+FROM node:lts-slim as builder
+WORKDIR /app
+COPY . .
+RUN npm i
+RUN npm run build
+
 FROM nginx:stable-alpine
-COPY build /usr/share/nginx/html
+COPY --from=builder /app/build /usr/share/nginx/html
 COPY default.conf.template /etc/nginx/templates/default.conf.template
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 3000
