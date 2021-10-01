@@ -52,6 +52,15 @@ table! {
 }
 
 table! {
+    htb_team_rank (entry_id) {
+        entry_id -> Integer,
+        rank -> Integer,
+        points -> Integer,
+        timestamp -> Datetime,
+    }
+}
+
+table! {
     scoreboard (entry_id) {
         entry_id -> Integer,
         ctf_id -> Integer,
@@ -61,4 +70,11 @@ table! {
     }
 }
 
-allow_tables_to_appear_in_same_query!(challenges, ctfs, htb_challenges, htb_solves, scoreboard,);
+allow_tables_to_appear_in_same_query!(
+    challenges,
+    ctfs,
+    htb_challenges,
+    htb_solves,
+    htb_team_rank,
+    scoreboard,
+);

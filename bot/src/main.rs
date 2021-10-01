@@ -40,7 +40,7 @@ impl EventHandler for Handler {
     async fn ready(&self, ctx: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
 
-        ctx.set_activity(Activity::playing("https://ctf.husk.pro/"))
+        ctx.set_activity(Activity::playing(".help for more info!"))
             .await;
 
         match ready.user.invite_url(&ctx.http, Permissions::empty()).await {
@@ -124,7 +124,7 @@ async fn main() {
         .on_dispatch_error(dispatch_error)
         .help(&HELP)
         .group(&CTFER_GROUP)
-        .group(&HACKER_GROUP);
+        .group(&HTBER_GROUP);
 
     let mut client = Client::builder(&token)
         .framework(framework)

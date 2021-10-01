@@ -133,6 +133,17 @@ pub struct LoginResponseData {
     pub access_token: String,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct RankStats {
+    pub data: RankStatsData,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RankStatsData {
+    pub rank: i32,
+    pub points: i32,
+}
+
 #[derive(Debug)]
 pub struct SolveToAnnounce {
     pub solver: String,
@@ -265,6 +276,16 @@ mod tests {
 
         assert_eq!(member.id, 66487);
         assert_eq!(member.name, "wulfgarpro");
+    }
+
+    #[test]
+    fn test_deserialise_latest_team_stats() {
+        let data = read_file_to_string("latest_team_stats.json");
+
+        let team_stats: RankStats = serde_json::from_str(&data).unwrap();
+
+        assert_eq!(team_stats.data.rank, 381);
+        assert_eq!(team_stats.data.points, 101);
     }
 
     #[test]

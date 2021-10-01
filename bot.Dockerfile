@@ -14,6 +14,8 @@ FROM debian:buster-slim
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y mariadb-client openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /usr/local/cargo/bin/ctf_bot /usr/local/bin/ctf_bot
+COPY --from=builder /usr/local/cargo/bin/ctf_bot /usr/bin/ctf_bot
+
+USER 1000
 
 CMD ["ctf_bot"]

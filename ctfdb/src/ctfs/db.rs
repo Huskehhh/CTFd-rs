@@ -227,7 +227,7 @@ pub async fn add_working(username: String, challenge_name: &str) -> Result<(), E
         .expect("Error when getting pooled connection");
 
     // First load the challenge by that name
-    let challenges = get_challenge_from_name(&challenge_name, &connection)?;
+    let challenges = get_challenge_from_name(challenge_name, &connection)?;
 
     if let Some(challenge) = challenges.first() {
         let challenge_id = challenge.id;
@@ -258,7 +258,7 @@ pub async fn remove_working(username: String, challenge_name: &str) -> Result<()
     let connection = get_pooled_connection().await?;
 
     // First load the challenge by that name
-    let challenges = get_challenge_from_name(&challenge_name, &connection)?;
+    let challenges = get_challenge_from_name(challenge_name, &connection)?;
 
     if let Some(challenge) = challenges.first() {
        return remove_working_from_challenge(username, &challenge, &connection);
@@ -336,6 +336,8 @@ async fn load_active_ctfdservices() -> Result<(), Error> {
 
         let service = new_ctfdservice(service_config).await;
 
+        println!("Loading service into cache with id: {}", service.get_id());
+
         // Insert to cache
         CTF_CACHE.insert(service.get_id(), service);
     }
@@ -369,6 +371,8 @@ pub async fn check_for_new_solves(ctf: &Ctf) -> Result<Vec<Challenge>, Error> {
                 new_solves.push(challenge);
             }
         }
+
+        return Ok(new_solves);
     }
 
     Err(format_err!(
@@ -423,6 +427,7 @@ pub async fn ensure_challenge_exists_otherwise_add(
                 chall_dsl::name.eq(&challenge.name),
                 chall_dsl::points.eq(&challenge.value),
                 chall_dsl::solved.eq(false),
+                chall_dsl::announced_solve.eq(false),
             ))
             .execute(connection)?;
 

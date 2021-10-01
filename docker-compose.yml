@@ -1,0 +1,79 @@
+version: "3"
+services:
+  ctf_bot:
+    build:
+      context: .
+      dockerfile: bot.Dockerfile
+    depends_on: 
+      mariadb:
+        condition: service_healthy
+      diesel_migration_runner:
+        condition: service_started
+    restart: unless-stopped
+    container_name: ctfd_rs_bot_dev
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      OWNER_ID: ${OWNER_ID}
+      HTB_TEAM_ID: ${HTB_TEAM_ID}
+      HTB_CHANNEL_ID: ${HTB_CHANNEL_ID}
+      HTB_EMAIL: ${HTB_EMAIL}
+      HTB_PASSWORD: ${HTB_PASSWORD}
+  ctf_rest_api:
+    build:
+      context: .
+      dockerfile: rest-api.Dockerfile
+    depends_on: 
+      mariadb:
+        condition: service_healthy
+      diesel_migration_runner:
+        condition: service_started
+    restart: unless-stopped
+    container_name: ctfd_rs_api_dev
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      BIND_ADDRESS: 0.0.0.0:8010
+      ALLOWED_ORIGIN: ${ALLOWED_ORIGIN}
+    ports:
+      - 8010:8010
+  ctf_frontend:
+    build:
+      context: frontend/
+      dockerfile: frontend.Dockerfile
+    depends_on:
+      ctf_rest_api:
+        condition: service_started
+    restart: unless-stopped
+    container_name: ctfd_rs_ui_dev
+    environment:
+      REACT_APP_API_URL: ${REACT_APP_API_URL}
+    ports:
+      - 8080:80
+  mariadb:
+    container_name: ctfd_rs_db
+    image: ghcr.io/linuxserver/mariadb:latest
+    restart: unless-stopped
+    environment:
+      PUID: 1000
+      PGID: 1000
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ctfd_rs_bot_dev
+      TZ: Australia/Melbourne
+    ports:
+      - 3306:3306
+    volumes:
+      - ./.mariadb/:/var/lib/mysql
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root --password=${MYSQL_ROOT_PASSWORD}
+      timeout: 5s
+      retries: 10
+  diesel_migration_runner:
+    container_name: ctfd_rs_migration_runner
+    image: willsquire/diesel-cli:latest
+    depends_on: 
+      mariadb:
+        condition: service_healthy
+    restart: unless-stopped
+    command: --database-url=${DATABASE_URL} setup
+    volumes:
+      - ./ctfdb:/app

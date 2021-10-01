@@ -10,41 +10,17 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  bot:
+  rust-projects:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: Swatinem/rust-cache@v1
         with:
-          working-directory: bot
-      - name: Build bot
-        run: cd bot && cargo build --verbose
-      - name: Run tests for bot
-        run: cd bot && cargo test --verbose
-
-  db:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: Swatinem/rust-cache@v1
-        with:
-          working-directory: ctfdb
-      - name: Build ctfdb
-        run: cd ctfdb && cargo build --verbose
-      - name: Run tests for ctfdb
-        run: cd ctfdb && cargo test --verbose
-
-  rest-api:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: Swatinem/rust-cache@v1
-        with:
-          working-directory: rest-api
-      - name: Build rest-api
-        run: cd rest-api && cargo build --verbose
-      - name: Run tests for rest-api
-        run: cd rest-api && cargo test --verbose
+          working-directory: .
+      - name: Build rust projects 
+        run: cargo build --verbose
+      - name: Run tests for all rust projects
+        run: cargo test --verbose
 
   frontend:
     runs-on: ubuntu-latest

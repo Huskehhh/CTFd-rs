@@ -14,6 +14,8 @@ FROM debian:buster-slim
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y mariadb-client openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /usr/local/cargo/bin/rest-api /usr/local/bin/rest-api
+COPY --from=builder /usr/local/cargo/bin/rest-api /usr/bin/rest-api
+
+USER 1000
 
 CMD ["rest-api"]

@@ -39,13 +39,13 @@ Included with the bot is a polling task, that will continuously check for new up
 
 #### 🔨 Compilation
 
-1. ```git clone https://github.com/Huskehhh/CTFd-rs && cd CTFd-rs/bot```
+1. ```git clone https://github.com/Huskehhh/CTFd-rs && cd CTFd-rs```
 2. ```cargo build --release```
 3. Done, binary can be found in ``target/release/``
 
 Alternatively... use [Docker](https://www.docker.com/)!
 
-``docker build -f Dockerfile.bot -t bot .`` and you're done!
+``docker build -f bot.Dockerfile -t ctfdrs-bot .`` and you're done!
 
 #### 🧰 Setup
 
@@ -81,9 +81,9 @@ Available prefixes are ``!`` ``.`` ``~``
 | !ctf [giveup/g] "*challenge*"                                               | Removes you from working on the given challenge                                                | CTFer      |
 | !ctf [search] "*challenge*"                                                 | Searches for the given challenge and returns the status of it                                  | CTFer      |
 | !ctf stats                                                                  | Displays the current stats for all active CTFs                                                 | CTFer      |
-| !htb [working/w] "*challenge*"                                              | Marks you as working on the given challenge                                                    | hacker     |
-| !htb [giveup/g] "*challenge*"                                               | Removes you from working on the given challenge                                                | hacker     |
-| !htb [search] "*challenge*"                                                 | Searches for the given challenge and returns the status of it                                  | hacker     |
+| !htb [working/w] "*challenge*"                                              | Marks you as working on the given challenge                                                    | CTFer     |
+| !htb [giveup/g] "*challenge*"                                               | Removes you from working on the given challenge                                                | CTFer     |
+| !htb [search] "*challenge*"                                                 | Searches for the given challenge and returns the status of it                                  | CTFer     |
 
 ### rest-api
 
@@ -93,13 +93,13 @@ Simple REST API built on [actix-web](https://actix.rs/) for consumption via the 
 
 #### 🔨 Compilation
 
-1.```git clone https://github.com/Huskehhh/rest-api && cd CTFd-rs/rest-api```
+1. ```git clone https://github.com/Huskehhh/CTFd-rs && cd CTFd-rs```
 2. ```cargo build --release```
 3. Done, binary can be found in ``target/release/``
 
 Alternatively... use [Docker](https://www.docker.com/)!
 
-``docker build -f Dockerfile.rest-api -t rest-api .`` and you're done!
+``docker build -f rest-api.Dockerfile -t ctfdrs-rest-api .`` and you're done!
 
 #### 🧰 Setup
 

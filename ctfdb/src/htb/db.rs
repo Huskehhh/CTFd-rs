@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::{Local, NaiveDateTime};
 use dashmap::DashMap;
 use diesel::{insert_into, prelude::*, update};
 use diesel::{QueryDsl, RunQueryDsl};
@@ -6,14 +6,15 @@ use failure::Error;
 use once_cell::sync::Lazy;
 
 use crate::htb::structs::SolveToAnnounce;
+use crate::models::HTBRank;
 use crate::models::HTBSolve;
 use crate::PooledMysqlConnection;
 use crate::{
     get_pooled_connection, models::HTBChallenge, schema::htb_challenges::dsl as htb_dsl,
-    schema::htb_solves::dsl as htb_solve_dsl,
+    schema::htb_solves::dsl as htb_solve_dsl, schema::htb_team_rank::dsl as htb_rank_dsl,
 };
 
-use super::structs::{ActivityData, HTBApi, ListActiveChallengesData};
+use super::structs::{ActivityData, HTBApi, ListActiveChallengesData, RankStats};
 
 pub static CATEGORY_CACHE: Lazy<DashMap<i32, String>> = Lazy::new(DashMap::new);
 
@@ -88,7 +89,7 @@ pub async fn add_working(username: String, challenge_name: &str) -> Result<(), E
         .expect("Error when getting pooled connection");
 
     // First load the challenge by that name
-    let challenges = get_challenge_from_name(&challenge_name, &connection)?;
+    let challenges = get_challenge_from_name(challenge_name, &connection)?;
 
     if let Some(challenge) = challenges.first() {
         let challenge_id = challenge.htb_id;
@@ -119,7 +120,7 @@ pub async fn remove_working(username: String, challenge_name: &str) -> Result<()
     let connection = get_pooled_connection().await?;
 
     // First load the challenge by that name
-    let challenges = get_challenge_from_name(&challenge_name, &connection)?;
+    let challenges = get_challenge_from_name(challenge_name, &connection)?;
     if let Some(challenge) = challenges.first() {
         return remove_working_from_challenge(username, &challenge, &connection);
     }
@@ -169,7 +170,7 @@ pub async fn process_new_solves(api: &HTBApi) -> Result<(), Error> {
         let user_activity = &api.get_user_activity(member.id).await?;
 
         for solve in &user_activity.profile.activity {
-            if let Ok(challenge) = map_htb_response_to_challenge(&connection, &solve).await {
+            if let Ok(challenge) = map_htb_response_to_challenge(&connection, solve).await {
                 if !is_challenge_solved_and_not_announced_for_user(
                     member.id,
                     challenge.htb_id,
@@ -283,11 +284,11 @@ pub fn add_challenge_solved_for_user(
     solve_type: &str,
     connection: &MysqlConnection,
 ) -> Result<(), Error> {
-    let challenges = get_challenge_from_id_with_connection(challenge_id, &connection)?;
+    let challenges = get_challenge_from_id_with_connection(challenge_id, connection)?;
 
     if !challenges.is_empty() {
         let challenge = &challenges[0];
-        let solved_time = NaiveDateTime::parse_from_str(&solve_date, "%Y-%m-%dT%H:%M:%S.%Z")?;
+        let solved_time = NaiveDateTime::parse_from_str(solve_date, "%Y-%m-%dT%H:%M:%S.%Z")?;
 
         insert_into(htb_solve_dsl::htb_solves)
             .values((
@@ -405,6 +406,42 @@ pub async fn ensure_challenge_exists_otherwise_add(
     }
 
     Ok(false)
+}
+
+pub async fn insert_rank_into_db(rank_stats: &RankStats) -> Result<(), Error> {
+    let connection = get_pooled_connection().await?;
+
+    insert_into(htb_rank_dsl::htb_team_rank)
+        .values((
+            htb_rank_dsl::rank.eq(&rank_stats.data.rank),
+            htb_rank_dsl::points.eq(&rank_stats.data.points),
+        ))
+        .execute(&connection)?;
+
+    Ok(())
+}
+
+pub async fn get_latest_rank_from_db() -> Result<HTBRank, Error> {
+    let connection = get_pooled_connection().await?;
+
+    let solves = htb_rank_dsl::htb_team_rank
+        .order(htb_rank_dsl::entry_id.desc())
+        .limit(1)
+        .load::<HTBRank>(&connection)?;
+
+    match solves.first() {
+        Some(first) => {
+            Ok(first.clone())
+        }
+        None => {
+            Ok(HTBRank {
+                entry_id: 0,
+                rank: 0,
+                points: 0,
+                timestamp: Local::now().naive_local(),
+            })
+        }
+    }
 }
 
 #[tokio::main]

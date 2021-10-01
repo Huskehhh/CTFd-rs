@@ -1,6 +1,6 @@
 use chrono::NaiveDateTime;
 
-#[derive(Queryable)]
+#[derive(Debug, Queryable)]
 pub struct Ctf {
     pub id: i32,
     pub name: String,
@@ -56,4 +56,12 @@ pub struct HTBSolve {
     pub solve_type: String,
     pub announced: bool,
     pub solved_time: NaiveDateTime,
+}
+
+#[derive(Debug, Queryable, Clone)]
+pub struct HTBRank {
+    pub entry_id: i32,
+    pub rank: i32,
+    pub points: i32,
+    pub timestamp: NaiveDateTime,
 }

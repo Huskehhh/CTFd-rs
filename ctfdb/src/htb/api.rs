@@ -101,6 +101,20 @@ impl HTBApi {
         Ok(team_stats)
     }
 
+    pub async fn get_team_rank(&self) -> Result<RankStats, Error> {
+        let url = format!("{}/rankings/team/ranking_bracket", API_URL);
+
+        let team_rank = self
+            .client
+            .get(&url)
+            .send()
+            .await?
+            .json::<RankStats>()
+            .await?;
+
+        Ok(team_rank)
+    }
+
     pub async fn get_challenge_categories(&self) -> Result<ListChallengeCategories, Error> {
         let url = format!("{}/challenge/categories/list", API_URL);
 
