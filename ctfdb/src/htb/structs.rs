@@ -29,6 +29,17 @@ pub struct ActivityData {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct UserOverview {
+    pub profile: UserOverviewData,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UserOverviewData {
+    pub id: i32,
+    pub name: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct GetTeamProfile {
     pub id: i32,
     pub name: String,

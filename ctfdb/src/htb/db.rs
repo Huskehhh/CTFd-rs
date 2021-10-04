@@ -6,12 +6,13 @@ use failure::Error;
 use once_cell::sync::Lazy;
 
 use crate::htb::structs::SolveToAnnounce;
-use crate::models::HTBRank;
 use crate::models::HTBSolve;
+use crate::models::{HTBRank, HTBUserMapping};
 use crate::PooledMysqlConnection;
 use crate::{
     get_pooled_connection, models::HTBChallenge, schema::htb_challenges::dsl as htb_dsl,
     schema::htb_solves::dsl as htb_solve_dsl, schema::htb_team_rank::dsl as htb_rank_dsl,
+    schema::htb_user_id_mapping::dsl as htb_user_mapping_dsl,
 };
 
 use super::structs::{ActivityData, HTBApi, ListActiveChallengesData, RankStats};
@@ -420,18 +421,35 @@ pub async fn get_latest_rank_from_db() -> Result<HTBRank, Error> {
         .load::<HTBRank>(&connection)?;
 
     match solves.first() {
-        Some(first) => {
-            Ok(first.clone())
-        }
-        None => {
-            Ok(HTBRank {
-                entry_id: 0,
-                rank: 0,
-                points: 0,
-                timestamp: Local::now().naive_local(),
-            })
-        }
+        Some(first) => Ok(first.clone()),
+        None => Ok(HTBRank {
+            entry_id: 0,
+            rank: 0,
+            points: 0,
+            timestamp: Local::now().naive_local(),
+        }),
     }
+}
+
+pub async fn get_discord_id_for(htb_id: i32) -> Result<i64, Error> {
+    let connection = get_pooled_connection().await?;
+
+    let user = htb_user_mapping_dsl::htb_user_id_mapping
+        .filter(htb_user_mapping_dsl::htb_id.eq(htb_id))
+        .load::<HTBUserMapping>(&connection)?;
+
+    if let Some(first) = user.first() {
+        return Ok(first.discord_id);
+    }
+
+    Err(format_err!(
+        "No discord id found for HTB user with ID: {}!",
+        htb_id
+    ))
+}
+
+pub async fn get_htb_name_for(htb_id: i32, htb_api: &HTBApi) -> Result<String, Error> {
+    Ok(htb_api.get_user_overview(htb_id).await?.profile.name)
 }
 
 #[tokio::main]

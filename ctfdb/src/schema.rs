@@ -61,6 +61,14 @@ table! {
 }
 
 table! {
+    htb_user_id_mapping (entry_id) {
+        entry_id -> Integer,
+        htb_id -> Integer,
+        discord_id -> Bigint,
+    }
+}
+
+table! {
     scoreboard (entry_id) {
         entry_id -> Integer,
         ctf_id -> Integer,
@@ -76,5 +84,6 @@ allow_tables_to_appear_in_same_query!(
     htb_challenges,
     htb_solves,
     htb_team_rank,
+    htb_user_id_mapping,
     scoreboard,
 );

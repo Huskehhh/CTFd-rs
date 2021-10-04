@@ -65,3 +65,10 @@ pub struct HTBRank {
     pub points: i32,
     pub timestamp: NaiveDateTime,
 }
+
+#[derive(Debug, Queryable)]
+pub struct HTBUserMapping {
+    pub entry_id: i32,
+    pub htb_id: i32,
+    pub discord_id: i64,
+}
