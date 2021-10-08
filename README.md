@@ -60,6 +60,7 @@ Alternatively... use [Docker](https://www.docker.com/)!
     HTB_EMAIL=some@email.here
     HTB_PASSWORD=supersecretpassword123
     HTB_CHANNEL_ID=860092136775200000
+    GUILD_ID=000000000000000000
     ```
 
    See [here](https://discord.com/developers/docs/topics/oauth2#bots) for more information.
@@ -75,6 +76,7 @@ Available prefixes are ``!`` ``.`` ``~``
 | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------- |
 | !ctf start "*ctf name*" *https://url.to.ctf* *api-key* *discord-channel-id* | Starts a new CTF with given name, uses API key as auth. Posts updates to given discord channel | Organiser  |
 | !ctf end "*ctf name*"                                                       | Ends CTF with given name                                                                       | Organiser  |
+| !htb link <*htb id*> <*discord id*>                                         | Links the provided HTB ID with a Discord ID                                                    | Organiser  |
 | !ctf active                                                                 | Lists all active CTFs                                                                          | CTFer      |
 | !ctf list "*ctf name*" OR !ctf list                                         | Lists all challenges on given CTF OR for CTF linked to current channel                         | CTFer      |
 | !ctf [working/w] "*challenge*"                                              | Marks you as working on the given challenge                                                    | CTFer      |
