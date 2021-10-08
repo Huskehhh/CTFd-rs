@@ -481,15 +481,17 @@ pub async fn set_discord_id_for(htb_id: i32, discord_id: i64) -> Result<(), Erro
                 htb_user_mapping_dsl::discord_id.eq(discord_id),
             ))
             .execute(&connection)?;
+
+        Ok(())
     } else {
         // If the user mapping entry exists, then we just need to update it.
         update(htb_user_mapping_dsl::htb_user_id_mapping)
             .filter(htb_user_mapping_dsl::htb_id.eq(htb_id))
             .set(htb_user_mapping_dsl::discord_id.eq(discord_id))
             .execute(&connection)?;
-    }
 
-    todo!()
+        Ok(())
+    }
 }
 
 #[tokio::main]
