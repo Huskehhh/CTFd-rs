@@ -222,6 +222,16 @@ mod tests {
     }
 
     #[test]
+    fn test_deserialise_user_overvoew() {
+        let data = read_file_to_string("user_overview.json");
+
+        let recent_data: UserOverview = serde_json::from_str(&data).unwrap();
+        let profile = recent_data.profile;
+
+        assert_eq!(508037, profile.id);
+    }
+
+    #[test]
     fn test_deserialise_list_challenges() {
         let data = read_file_to_string("list_challenges.json");
 

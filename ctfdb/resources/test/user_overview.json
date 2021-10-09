@@ -1,0 +1,41 @@
+{
+  "profile": {
+    "id": 508037,
+    "name": "Jordyn",
+    "system_owns": 0,
+    "user_owns": 0,
+    "user_bloods": 0,
+    "system_bloods": 0,
+    "team": {
+      "id": 2230,
+      "name": "purple",
+      "ranking": 426,
+      "avatar": "/storage/teams/329e6581efbc90bd92a1f22c4ba2103d.jpg"
+    },
+    "respects": 0,
+    "rank": "Script Kiddie",
+    "rank_id": 2,
+    "current_rank_progress": 3.47,
+    "next_rank": "Hacker",
+    "next_rank_points": 1.1039999999999999,
+    "rank_ownership": "5.52",
+    "rank_requirement": 5,
+    "ranking": 753,
+    "avatar": "/storage/avatars/f32aaeb8b9618bb3ef44db638c986b41.png",
+    "timezone": "Australia/Melbourne",
+    "isVip": false,
+    "isDedicatedVip": false,
+    "public": false,
+    "country_name": "Australia",
+    "country_code": "AU",
+    "points": 3,
+    "university": null,
+    "university_name": null,
+    "description": null,
+    "github": null,
+    "linkedin": null,
+    "twitter": null,
+    "website": null,
+    "server": "AU Free 1"
+  }
+}
