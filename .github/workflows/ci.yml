@@ -20,6 +20,10 @@ jobs:
       - name: Build rust projects 
         run: cargo build --verbose
       - name: Run tests for all rust projects
+        env:
+          HTB_EMAIL: ${{ secrets.HTB_EMAIL }}
+          HTB_PASSWORD: ${{ secrets.HTB_PASSWORD }}
+          HTB_TEAM_ID: ${{ secrets.HTB_TEAM_ID }}
         run: cargo test --verbose
 
   frontend:
