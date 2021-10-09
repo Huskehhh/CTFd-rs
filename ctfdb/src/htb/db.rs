@@ -6,13 +6,14 @@ use failure::Error;
 use once_cell::sync::Lazy;
 
 use crate::htb::structs::SolveToAnnounce;
-use crate::models::HTBRank;
 use crate::models::HTBSolve;
-use crate::PooledMysqlConnection;
+use crate::models::{HTBRank, HTBUserMapping};
 use crate::{
     get_pooled_connection, models::HTBChallenge, schema::htb_challenges::dsl as htb_dsl,
     schema::htb_solves::dsl as htb_solve_dsl, schema::htb_team_rank::dsl as htb_rank_dsl,
+    schema::htb_user_id_mapping::dsl as htb_user_mapping_dsl,
 };
+use crate::{DiscordNameProvider, PooledMysqlConnection};
 
 use super::structs::{ActivityData, HTBApi, ListActiveChallengesData, RankStats};
 
@@ -153,7 +154,10 @@ pub async fn remove_working(username: String, challenge_name: &str) -> Result<()
     Ok(())
 }
 
-pub async fn process_new_solves(api: &HTBApi) -> Result<(), Error> {
+pub async fn process_new_solves(
+    api: &HTBApi,
+    discord_name_provider: &dyn DiscordNameProvider,
+) -> Result<(), Error> {
     let team_members = &api.list_team_members().await?;
     let connection = get_pooled_connection().await?;
 
@@ -168,13 +172,22 @@ pub async fn process_new_solves(api: &HTBApi) -> Result<(), Error> {
                     &solve.solve_type,
                     &connection,
                 ) {
+                    // Try convert the HTB ID to a Discord user
+                    let discord_id = get_discord_id_for(member.id).await?;
+
+                    let solver_name = discord_name_provider
+                        .name_for_id(discord_id)
+                        .await
+                        .unwrap_or_else(|| member.name.clone());
+
                     println!(
                         "HTB: Adding solve for user {}, challenge: {}",
-                        member.name, solve.name
+                        member.name, solver_name
                     );
+
                     add_challenge_solved_for_user(
                         member.id,
-                        &member.name,
+                        &solver_name,
                         &solve.date,
                         solve.id,
                         &solve.solve_type,
@@ -420,17 +433,64 @@ pub async fn get_latest_rank_from_db() -> Result<HTBRank, Error> {
         .load::<HTBRank>(&connection)?;
 
     match solves.first() {
-        Some(first) => {
-            Ok(first.clone())
-        }
-        None => {
-            Ok(HTBRank {
-                entry_id: 0,
-                rank: 0,
-                points: 0,
-                timestamp: Local::now().naive_local(),
-            })
-        }
+        Some(first) => Ok(first.clone()),
+        None => Ok(HTBRank {
+            entry_id: 0,
+            rank: 0,
+            points: 0,
+            timestamp: Local::now().naive_local(),
+        }),
+    }
+}
+
+pub async fn get_discord_id_for(htb_id: i32) -> Result<i64, Error> {
+    let connection = get_pooled_connection().await?;
+
+    let user = htb_user_mapping_dsl::htb_user_id_mapping
+        .filter(htb_user_mapping_dsl::htb_id.eq(htb_id))
+        .load::<HTBUserMapping>(&connection)?;
+
+    if let Some(first) = user.first() {
+        return Ok(first.discord_id);
+    }
+
+    Err(format_err!(
+        "No discord id found for HTB user with ID: {}!",
+        htb_id
+    ))
+}
+
+pub async fn get_htb_name_for(htb_id: i32, htb_api: &HTBApi) -> Result<String, Error> {
+    Ok(htb_api.get_user_overview(htb_id).await?.profile.name)
+}
+
+pub async fn set_discord_id_for(htb_id: i32, discord_id: i64) -> Result<(), Error> {
+    let connection = get_pooled_connection().await?;
+
+    // First need to check to see if there exists a mapping with the given HTB ID.
+    let results = htb_user_mapping_dsl::htb_user_id_mapping
+        .filter(htb_user_mapping_dsl::htb_id.eq(htb_id))
+        .load::<HTBUserMapping>(&connection)?;
+
+    // If results is empty, meaning that there was no user mapping found with the given id, then
+    // We need to insert it into the database.
+    if results.is_empty() {
+        insert_into(htb_user_mapping_dsl::htb_user_id_mapping)
+            .values((
+                htb_user_mapping_dsl::htb_id.eq(htb_id),
+                htb_user_mapping_dsl::discord_id.eq(discord_id),
+            ))
+            .execute(&connection)?;
+
+        Ok(())
+    } else {
+        // If the user mapping entry exists, then we just need to update it.
+        update(htb_user_mapping_dsl::htb_user_id_mapping)
+            .filter(htb_user_mapping_dsl::htb_id.eq(htb_id))
+            .set(htb_user_mapping_dsl::discord_id.eq(discord_id))
+            .execute(&connection)?;
+
+        Ok(())
     }
 }
 

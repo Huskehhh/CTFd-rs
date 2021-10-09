@@ -21,10 +21,11 @@ use ctfdb::{
         structs::{HTBApi, RankStatsData, SolveToAnnounce},
     },
     models::{Challenge, HTBChallenge, HTBRank},
-    ChallengeProvider,
+    ChallengeProvider, DiscordNameProvider,
 };
 
 pub mod commands;
+pub mod discord_name_provider;
 
 pub type ChallengeProviderService = Box<dyn ChallengeProvider + Send + Sync>;
 
@@ -329,10 +330,11 @@ pub async fn htb_poller_task(
     htb_api: &mut HTBApi,
     http: &Http,
     channel_id: &ChannelId,
+    discord_name_provider: &dyn DiscordNameProvider,
 ) -> Result<(), Error> {
     htb_api.handle_token_renewal().await?;
     update_htb_challenges_and_scores(htb_api).await?;
-    process_new_solves(htb_api).await?;
+    process_new_solves(htb_api, discord_name_provider).await?;
     process_rank_status(htb_api, channel_id, http).await?;
 
     let solves = get_solves_to_announce().await;
