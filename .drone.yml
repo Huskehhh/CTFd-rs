@@ -7,6 +7,7 @@ steps:
   image: rust:1.56
   commands:
   - cargo build --verbose --all
+  depends_on: [ clone ] 
 
 - name: test-rust
   image: rust:1.56
@@ -20,7 +21,7 @@ steps:
       from_secret: HTB_PASSWORD
   commands:
   - cargo test --verbose --all
-   depends_on: [ clone, build-rust ] 
+  depends_on: [ clone, build-rust ] 
 
 - name: build-frontend
   image: node:16
@@ -28,4 +29,4 @@ steps:
   - cd frontend
   - npm install
   - npm run build
-   depends_on: [ clone ] 
+  depends_on: [ clone ] 
