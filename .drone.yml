@@ -3,6 +3,21 @@ type: docker
 name: default
 
 steps:
+- name: restore-cache-with-filesystem
+  image: meltwater/drone-cache
+  pull: true
+  settings:
+    backend: "filesystem"
+    restore: true
+    cache_key: "volume"
+    archive_format: "gzip"
+    filesystem_cache_root: "/drone/src/target"
+    mount:
+      - 'vendor'
+  volumes:
+  - name: cache
+    path: /drone/src/target
+
 - name: build and test rust
   image: registry.husk.pro/just-rust-docker:1.56
   environment:
@@ -23,4 +38,24 @@ steps:
   - cd frontend
   - npm install
   - npm run build
-  depends_on: [ clone ] 
+  depends_on: [ clone ]
+
+- name: rebuild-cache-with-filesystem
+  image: meltwater/drone-cache
+  pull: true
+  settings:
+    backend: "filesystem"
+    rebuild: true
+    cache_key: "volume"
+    archive_format: "gzip"
+    filesystem_cache_root: "/drone/src/target"
+    mount:
+      - 'vendor'
+  volumes:
+  - name: cache
+    path: /drone/src/target
+
+volumes:
+  - name: cache
+    host:
+      path: /cache/
