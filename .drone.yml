@@ -1,3 +1,4 @@
+---
 kind: pipeline
 type: docker
 name: default
@@ -60,3 +61,7 @@ volumes:
   - name: cache
     host:
       path: "/var/lib/cache"
+
+---
+kind: signature
+hmac: 2a641afa4cfe8ce822505215c115f5a8b72321a6558904ee0437fab22e7d7e68
