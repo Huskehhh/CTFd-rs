@@ -18,7 +18,7 @@ steps:
   - name: cache
     path: /drone/src/target
 
-- name: build and test rust
+- name: build-and-test-rust
   image: registry.husk.pro/just-rust-docker:1.56
   environment:
     HTB_TEAM_ID:
@@ -30,7 +30,7 @@ steps:
   commands:
   - just check
   - just test
-  depends_on: [ clone ] 
+  depends_on: [ clone, restore-cache-with-filesystem ] 
 
 - name: build-frontend
   image: node:16
@@ -43,6 +43,7 @@ steps:
 - name: rebuild-cache-with-filesystem
   image: meltwater/drone-cache
   pull: true
+  depends_on: [ clone, build-and-test-rust ]
   settings:
     backend: "filesystem"
     rebuild: true
