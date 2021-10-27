@@ -3,15 +3,8 @@ type: docker
 name: default
 
 steps:
-- name: build-rust
-  image: rust:1.56
-  commands:
-  - cargo build --verbose --all
-  depends_on: [ clone ] 
-
-- name: test-rust
-  image: rust:1.56
-  # Secrets used for integration tests
+- name: build and test rust
+  image: registry.husk.pro/just-rust-docker:1.56
   environment:
     HTB_TEAM_ID:
       from_secret: HTB_TEAM_ID
@@ -20,8 +13,9 @@ steps:
     HTB_PASSWORD:
       from_secret: HTB_PASSWORD
   commands:
-  - cargo test --verbose --all
-  depends_on: [ clone, build-rust ] 
+  - just check
+  - just test
+  depends_on: [ clone ] 
 
 - name: build-frontend
   image: node:16
