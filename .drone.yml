@@ -12,8 +12,6 @@ steps:
     cache_key: "volume"
     archive_format: "gzip"
     filesystem_cache_root: "/drone/src/target"
-    mount:
-      - 'vendor'
   volumes:
   - name: cache
     path: /drone/src/target
@@ -50,8 +48,6 @@ steps:
     cache_key: "volume"
     archive_format: "gzip"
     filesystem_cache_root: "/drone/src/target"
-    mount:
-      - 'vendor'
   volumes:
   - name: cache
     path: /drone/src/target
@@ -59,4 +55,4 @@ steps:
 volumes:
   - name: cache
     host:
-      path: /cache/
+      path: ./data/cache
