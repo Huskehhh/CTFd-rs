@@ -11,8 +11,9 @@ steps:
     restore: true
     cache_key: "volume"
     archive_format: "gzip"
+    filesystem_cache_root: "/cache"
     mount:
-      - 'target'
+      - "target"
 
 - name: build-and-test-rust
   image: registry.husk.pro/just-rust-docker:1.56
@@ -45,8 +46,9 @@ steps:
     rebuild: true
     cache_key: "volume"
     archive_format: "gzip"
+    filesystem_cache_root: "/cache"    
     mount:
-      - 'target'
+      - "target"
 
 volumes:
   - name: cache
