@@ -32,6 +32,7 @@ steps:
   commands:
   - just check
   - just test
+  - just udeps
   depends_on: [ clone, restore-cache-with-filesystem ] 
 
 - name: build-frontend
@@ -65,6 +66,6 @@ volumes:
       path: "/var/lib/cache"
 ---
 kind: signature
-hmac: cfc0afbc19064e06ee7ad5278c26474bbc912ff4c661227c45e3bbc3a0a83687
+hmac: 5be9e668353a671a0d91e40d86743cc86be0d9dc40d6626261ccb58c1ab52d38
 
 ...

@@ -645,7 +645,6 @@ dependencies = [
  "chrono",
  "dashmap",
  "diesel",
- "dotenv",
  "failure",
  "once_cell",
  "reqwest",

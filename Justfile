@@ -8,3 +8,7 @@ check:
 # Runs unit tests
 test:
 	cargo test --locked
+
+# Finds unused dependencies
+udeps:
+	RUSTC_BOOTSTRAP=1 cargo udeps --all-targets --backend depinfo
