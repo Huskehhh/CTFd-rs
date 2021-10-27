@@ -23,7 +23,7 @@ steps:
    depends_on: [ clone, build-rust ] 
 
 - name: build-frontend
-  image: node
+  image: node:16
   commands:
   - cd frontend
   - npm install
