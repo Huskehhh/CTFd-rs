@@ -1,0 +1,13 @@
+version: 2
+updates:
+# Maintain dependencies for the rust modules
+- package-ecosystem: cargo
+  directory: "/"
+  schedule:
+    interval: weekly
+
+# Maintain dependencies for the frontend module
+- package-ecosystem: npm
+  directory: "/frontend"
+  schedule:
+    interval: weekly
