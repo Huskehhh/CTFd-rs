@@ -1,0 +1,29 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: build rust
+  image: rust:1.56
+  commands:
+  - cargo build --verbose --all
+
+- name: test rust
+  image: rust:1.56
+  # Secrets used for integration tests
+  environment:
+    HTB_TEAM_ID:
+      from_secret: HTB_TEAM_ID
+    HTB_EMAIL:
+      from_secret: HTB_EMAIL
+    HTB_PASSWORD:
+      from_secret: HTB_PASSWORD
+  commands:
+  - cargo test --verbose --all
+
+- name: build frontend
+  image: node
+  commands:
+  - cd frontend
+  - npm install
+  - npm run build
