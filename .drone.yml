@@ -10,7 +10,7 @@ steps:
   settings:
     backend: "filesystem"
     restore: true
-    cache_key: "volume"
+    cache_key: '{{ .Commit.Branch }}'
     archive_format: "gzip"
     filesystem_cache_root: "/var/lib/cache"
     mount:
@@ -50,7 +50,7 @@ steps:
   settings:
     backend: "filesystem"
     rebuild: true
-    cache_key: "volume"
+    cache_key: '{{ .Commit.Branch }}'
     archive_format: "gzip"
     filesystem_cache_root: "/var/lib/cache"    
     mount:
@@ -64,9 +64,8 @@ volumes:
   - name: cache
     host:
       path: "/var/lib/cache"
-
 ---
 kind: signature
-hmac: 449ded01a6bd9c187024ddb6b21a02b12f3e4d8072ebb157d4ba8aa3c4ca6d18
+hmac: 5be9e668353a671a0d91e40d86743cc86be0d9dc40d6626261ccb58c1ab52d38
 
 ...
