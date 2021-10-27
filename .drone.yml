@@ -55,4 +55,4 @@ steps:
 volumes:
   - name: cache
     host:
-      path: ./data/cache
+      path: /cache
