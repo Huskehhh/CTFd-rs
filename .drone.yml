@@ -15,6 +15,7 @@ steps:
     filesystem_cache_root: "/var/lib/cache"
     mount:
       - "target"
+      - "frontend/node_modules"
   volumes:
     - name: cache
       path: "/var/lib/cache"
@@ -53,6 +54,7 @@ steps:
     filesystem_cache_root: "/var/lib/cache"    
     mount:
       - "target"
+      - "frontend/node_modules"
   volumes:
     - name: cache
       path: "/var/lib/cache"
@@ -61,7 +63,8 @@ volumes:
   - name: cache
     host:
       path: "/var/lib/cache"
-
 ---
 kind: signature
-hmac: 2a641afa4cfe8ce822505215c115f5a8b72321a6558904ee0437fab22e7d7e68
+hmac: cfc0afbc19064e06ee7ad5278c26474bbc912ff4c661227c45e3bbc3a0a83687
+
+...
