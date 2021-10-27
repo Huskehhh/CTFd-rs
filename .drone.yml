@@ -3,12 +3,12 @@ type: docker
 name: default
 
 steps:
-- name: build rust
+- name: build-rust
   image: rust:1.56
   commands:
   - cargo build --verbose --all
 
-- name: test rust
+- name: test-rust
   image: rust:1.56
   # Secrets used for integration tests
   environment:
@@ -20,10 +20,12 @@ steps:
       from_secret: HTB_PASSWORD
   commands:
   - cargo test --verbose --all
+   depends_on: [ clone, build-rust ] 
 
-- name: build frontend
+- name: build-frontend
   image: node
   commands:
   - cd frontend
   - npm install
   - npm run build
+   depends_on: [ clone ] 
