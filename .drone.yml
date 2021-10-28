@@ -41,7 +41,7 @@ steps:
   - cd frontend
   - npm install
   - npm run build
-  depends_on: [ clone ]
+  depends_on: [ clone, restore-cache-with-filesystem ]
 
 - name: rebuild-cache-with-filesystem
   image: meltwater/drone-cache
