@@ -1,11 +1,6 @@
 use std::env;
 
-use tokio::sync::OnceCell;
-
 use ctfdb::htb::structs::{HTBAPIConfig, HTBApi};
-
-// Single instance of the HTBApi for the tests
-static API: OnceCell<HTBApi> = OnceCell::const_new();
 
 async fn get_htb_api() -> HTBApi {
     let email = env::var("HTB_EMAIL").expect("No HTB_EMAIL environment variable defined!");
@@ -30,7 +25,7 @@ async fn get_htb_api() -> HTBApi {
 
 #[tokio::test]
 async fn test_get_user_overview() {
-    let api = API.get_or_init(get_htb_api).await;
+    let api = get_htb_api().await;
     let htb_user_id = 508037;
 
     let result = api.get_user_overview(htb_user_id).await;
@@ -45,7 +40,7 @@ async fn test_get_user_overview() {
 
 #[tokio::test]
 async fn test_get_user_activity() {
-    let api = API.get_or_init(get_htb_api).await;
+    let api = get_htb_api().await;
     let htb_user_id = 508037;
 
     let result = api.get_user_activity(htb_user_id).await;
@@ -60,7 +55,7 @@ async fn test_get_user_activity() {
 
 #[tokio::test]
 async fn test_get_challenge_categories() {
-    let api = API.get_or_init(get_htb_api).await;
+    let api = get_htb_api().await;
 
     let result = api.get_challenge_categories().await;
 
@@ -74,7 +69,7 @@ async fn test_get_challenge_categories() {
 
 #[tokio::test]
 async fn test_get_team_rank() {
-    let api = API.get_or_init(get_htb_api).await;
+    let api = get_htb_api().await;
 
     let result = api.get_team_rank().await;
 
@@ -89,7 +84,7 @@ async fn test_get_team_rank() {
 
 #[tokio::test]
 async fn test_get_team_statistics() {
-    let api = API.get_or_init(get_htb_api).await;
+    let api = get_htb_api().await;
 
     let result = api.get_team_statistics().await;
 
@@ -104,7 +99,7 @@ async fn test_get_team_statistics() {
 
 #[tokio::test]
 async fn test_list_team_members() {
-    let api = API.get_or_init(get_htb_api).await;
+    let api = get_htb_api().await;
 
     let result = api.list_team_members().await;
 
@@ -117,7 +112,7 @@ async fn test_list_team_members() {
 
 #[tokio::test]
 async fn test_list_active_machines() {
-    let api = API.get_or_init(get_htb_api).await;
+    let api = get_htb_api().await;
 
     let result = api.list_active_machines().await;
 
@@ -131,7 +126,7 @@ async fn test_list_active_machines() {
 
 #[tokio::test]
 async fn test_list_active_challenges() {
-    let api = API.get_or_init(get_htb_api).await;
+    let api = get_htb_api().await;
 
     let result = api.list_active_challenges().await;
 

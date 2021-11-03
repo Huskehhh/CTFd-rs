@@ -17,14 +17,15 @@ jobs:
       - uses: Swatinem/rust-cache@v1
         with:
           working-directory: .
+      - uses: extractions/setup-just@v1
       - name: Build rust projects 
-        run: cargo build --verbose
+        run: just check
       - name: Run tests for all rust projects
         env:
           HTB_EMAIL: ${{ secrets.HTB_EMAIL }}
           HTB_PASSWORD: ${{ secrets.HTB_PASSWORD }}
           HTB_TEAM_ID: ${{ secrets.HTB_TEAM_ID }}
-        run: cargo test --verbose
+        run: just test
 
   frontend:
     runs-on: ubuntu-latest
