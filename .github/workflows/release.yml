@@ -22,15 +22,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v2
-        env:
-          PROJECT_VERSION: ${{ secrets.PROJECT_VERSION }}
         with:
           file: bot.Dockerfile
           context: .
           push: true
           tags: |
             ghcr.io/huskehhh/ctfd_rs_bot:latest
-            ghcr.io/huskehhh/ctfd_rs_bot:$PROJECT_VERSION
 
   docker-release-api:
     runs-on: self-hosted
@@ -48,15 +45,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v2
-        env:
-          PROJECT_VERSION: ${{ secrets.PROJECT_VERSION }}
         with:
           file: rest-api.Dockerfile
           context: .
           push: true
           tags: | 
             ghcr.io/huskehhh/ctfd_rs_api:latest
-            ghcr.io/huskehhh/ctfd_rs_api:$PROJECT_VERSION
 
   docker-release-ui:
     runs-on: self-hosted
@@ -75,7 +69,6 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         env:
-          PROJECT_VERSION: ${{ secrets.PROJECT_VERSION }}
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
         with:
           file: frontend/frontend.Dockerfile
@@ -83,4 +76,3 @@ jobs:
           push: true
           tags: | 
             ghcr.io/huskehhh/ctfd_rs_ui:latest
-            ghcr.io/huskehhh/ctfd_rs_ui:$PROJECT_VERSION
