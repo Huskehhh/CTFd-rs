@@ -19,7 +19,7 @@ jobs:
           working-directory: .
       - uses: extractions/setup-just@v1
       - name: Build rust projects 
-        run: just build
+        run: just check
       - name: Run tests for all rust projects
         env:
           HTB_EMAIL: ${{ secrets.HTB_EMAIL }}
