@@ -30,7 +30,6 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: |
-            huskehhh/ctfd_rs_bot:latest
             ghcr.io/huskehhh/ctfd_rs_bot:latest
 
   docker-release-api:
@@ -57,7 +56,6 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: | 
-            huskehhh/ctfd_rs_api:latest
             ghcr.io/huskehhh/ctfd_rs_api:latest
 
   docker-release-ui:
@@ -84,5 +82,4 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: | 
-            huskehhh/ctfd_rs_ui:latest
             ghcr.io/huskehhh/ctfd_rs_ui:latest
