@@ -1,26 +1,13 @@
-name: release-please
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  crates:
-    strategy:
-      matrix:
-        include:
-          - crate: bot
-            path: parser
-          - crate: rest-api
-            path: interpreter
-    runs-on: ubuntu-latest
-    steps:
-      - uses: GoogleCloudPlatform/release-please-action@v2
-        id: release
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          monorepo-tags: true
-          release-type: rust
-          path: ${{ matrix.path }}
-          package-name: ${{ matrix.crate }}
+ on:
+   push:
+     branches:
+       - main
+ name: release-please
+ jobs:
+   release-please:
+     runs-on: ubuntu-latest
+     steps:
+       - uses: GoogleCloudPlatform/release-please-action@v2
+         with:
+           token: ${{ secrets.GITHUB_TOKEN }}
+           release-type: rust
