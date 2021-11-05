@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use chrono::NaiveDateTime;
 use dashmap::DashMap;
 use diesel::prelude::*;
@@ -261,42 +263,42 @@ pub async fn remove_working(username: String, challenge_name: &str) -> Result<()
     let challenges = get_challenge_from_name(challenge_name, &connection)?;
 
     if let Some(challenge) = challenges.first() {
-       return remove_working_from_challenge(username, &challenge, &connection);
+        return remove_working_from_challenge(username, challenge, &connection);
     }
 
     Err(format_err!("No challenge found by that name!"))
 }
 
-pub fn remove_working_from_challenge(username: String, challenge: &Challenge, connection: &MysqlConnection) -> Result<(), Error> {
-     let challenge_id = challenge.id;
+pub fn remove_working_from_challenge(
+    username: String,
+    challenge: &Challenge,
+    connection: &MysqlConnection,
+) -> Result<(), Error> {
+    let challenge_id = challenge.id;
 
-        if let Some(working) = &challenge.working {
-            let mut split: Vec<String> = working.split(", ").map(str::to_string).collect();
+    if let Some(working) = &challenge.working {
+        let mut split: HashSet<String> = working.split(", ").map(str::to_string).collect();
 
-            // Time to check if the user actually exists in here
-            if split.contains(&username) {
-                // Remove by index
-                let mut index = 0;
-                for entry in &split {
-                    if entry.eq(&username) {
-                        break;
-                    }
-                    index += 1;
-                }
-                split.remove(index);
+        // Time to check if the user actually exists in here
+        if split.contains(&username) {
+            split.remove(&username);
 
-                if split.is_empty() {
-                    update_working(None, challenge_id, &connection)?;
-                } else {
-                    let update_value = split.join(", ");
-                    update_working(Some(&update_value), challenge_id, &connection)?;
-                }
+            if split.is_empty() {
+                update_working(None, challenge_id, connection)?;
+            } else {
+                let update_value = split.into_iter().collect::<Vec<String>>().join(", ");
+                update_working(Some(&update_value), challenge_id, connection)?;
             }
-
-            return Ok(());
         }
 
-        Err(format_err!("Unable to remove {} as working on challenge {}", username, challenge.name))
+        return Ok(());
+    }
+
+    Err(format_err!(
+        "Unable to remove {} as working on challenge {}",
+        username,
+        challenge.name
+    ))
 }
 
 pub async fn mark_solved(challenge: &Challenge) -> Result<(), Error> {
@@ -314,9 +316,9 @@ pub async fn mark_solved(challenge: &Challenge) -> Result<(), Error> {
         ))
         .execute(&connection)?;
 
-        if let Some(solver) = &challenge.solver {
-            return remove_working(solver.clone(), &challenge.name).await;
-        }
+    if let Some(solver) = &challenge.solver {
+        return remove_working(solver.clone(), &challenge.name).await;
+    }
 
     Ok(())
 }

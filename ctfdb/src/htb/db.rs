@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use chrono::{Local, NaiveDateTime};
 use dashmap::DashMap;
 use diesel::{insert_into, prelude::*, update};
@@ -123,7 +125,7 @@ pub async fn remove_working(username: String, challenge_name: &str) -> Result<()
     // First load the challenge by that name
     let challenges = get_challenge_from_name(challenge_name, &connection)?;
     if let Some(challenge) = challenges.first() {
-        return remove_working_from_challenge(username, &challenge, &connection);
+        return remove_working_from_challenge(username, challenge, &connection);
     }
 
     Err(format_err!("No challenge with that name found!"))
@@ -137,25 +139,17 @@ pub fn remove_working_from_challenge(
     let challenge_id = challenge.htb_id;
 
     if let Some(working) = &challenge.working {
-        let mut split: Vec<String> = working.split(", ").map(str::to_string).collect();
+        let mut split: HashSet<String> = working.split(", ").map(str::to_string).collect();
 
         // Time to check if the user actually exists in here
         if split.contains(&username) {
-            // Remove by index
-            let mut index = 0;
-            for entry in &split {
-                if entry.eq(&username) {
-                    break;
-                }
-                index += 1;
-            }
-            split.remove(index);
+            split.remove(&username);
 
             if split.is_empty() {
-                update_working(None, challenge_id, &connection)?;
+                update_working(None, challenge_id, connection)?;
             } else {
-                let update_value = split.join(", ");
-                update_working(Some(&update_value), challenge_id, &connection)?;
+                let update_value = split.into_iter().collect::<Vec<String>>().join(", ");
+                update_working(Some(&update_value), challenge_id, connection)?;
             }
         }
     }
@@ -315,7 +309,7 @@ pub fn add_challenge_solved_for_user(
             .execute(connection)?;
 
         // Remove user as working once they have solved
-        return remove_working_from_challenge(username.to_string(), &challenge, &connection);
+        return remove_working_from_challenge(username.to_string(), challenge, connection);
     }
 
     Err(format_err!("No challenge by that ID was found!"))
