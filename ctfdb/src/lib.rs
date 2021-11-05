@@ -80,6 +80,11 @@ pub trait ChallengeProvider {
     async fn team_stats(&self) -> Result<MyTeamResponseData, Error>;
 }
 
+#[async_trait]
+pub trait DiscordNameProvider {
+    async fn name_for_id(&self, id: i64) -> Option<String>;
+}
+
 pub fn jwt_still_valid(jwt: &JWTClaims) -> bool {
     let local: DateTime<Local> = Local::now();
     let unix_epoch = local.timestamp();

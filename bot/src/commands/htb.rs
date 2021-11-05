@@ -1,6 +1,6 @@
 use ctfdb::htb::db::{
     add_working, get_challenge_from_id, get_solves_for_username, remove_working,
-    search_for_challenge_by_name,
+    search_for_challenge_by_name, set_discord_id_for,
 };
 use serenity::client::Context;
 use serenity::framework::standard::{macros::*, Args, CommandResult};
@@ -154,6 +154,36 @@ async fn solves(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
         }
     } else {
         msg.reply(&ctx.http, "Usage: ``!htb solves \"Username\"``")
+            .await?;
+    }
+
+    Ok(())
+}
+
+#[command]
+#[allowed_roles("Organiser")]
+#[example("<htb id> <discord id>")]
+#[description = "Links a users HTB ID to a discord ID"]
+async fn link(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    if args.len() == 2 {
+        let htb_id = args.single::<i32>()?;
+        let discord_id = args.single::<i64>()?;
+
+        match set_discord_id_for(htb_id, discord_id).await {
+            Ok(_) => {
+                msg.reply(&ctx.http, "User mapping entered.").await?;
+            }
+            Err(why) => {
+                msg.reply(&ctx.http, "Unable to enter using mapping. Refer to logs.")
+                    .await?;
+                eprintln!(
+                    "Error when trying to enter htb id {} & discord id {} into the database... {}",
+                    htb_id, discord_id, why
+                );
+            }
+        }
+    } else {
+        msg.reply(&ctx.http, "Usage: ``!htb link <htb id> <discord id>``")
             .await?;
     }
 

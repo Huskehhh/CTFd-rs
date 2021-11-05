@@ -24,6 +24,7 @@ use serenity::{
 use serenity::{http::Http, model::id::UserId, Client};
 use serenity::{model::gateway::Ready, model::Permissions};
 
+use ctf_bot::discord_name_provider::AsyncDiscordNameProvider;
 use ctf_bot::{
     commands::ctf::*, commands::htb::*, htb_poller_task, new_solve_poller_task,
     scoreboard_and_scores_task,
@@ -162,6 +163,11 @@ async fn main() {
         .parse::<u64>()
         .expect("HTB_CHANNEL_ID environment variable was unable to be parsed to a u64...");
 
+    let guild_id = env::var("GUILD_ID")
+        .expect("No GUILD_ID environment variable found!")
+        .parse::<u64>()
+        .expect("GUILD_ID environment variable was unable to be parsed to a u64...");
+
     let htb_config = HTBAPIConfig {
         email,
         password: pass,
@@ -174,12 +180,19 @@ async fn main() {
                 let http = Http::new_with_token(&token_copy);
                 let channel_id = ChannelId(htb_channel_id);
 
+                let discord_name_provider = AsyncDiscordNameProvider {
+                    http: &http,
+                    guild_id,
+                };
+
                 if let Err(why) = load_categories_to_cache(&htb_api) {
                     eprintln!("Error loading categories to cache... {}", why);
                 }
 
                 loop {
-                    if let Err(why) = htb_poller_task(&mut htb_api, &http, &channel_id) {
+                    if let Err(why) =
+                        htb_poller_task(&mut htb_api, &http, &channel_id, &discord_name_provider)
+                    {
                         eprintln!("Error in HTB polling service... {}", why);
                     }
                     sleep(Duration::from_secs(60));

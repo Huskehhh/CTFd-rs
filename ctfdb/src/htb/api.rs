@@ -143,6 +143,20 @@ impl HTBApi {
         Ok(users_recent_activity)
     }
 
+    pub async fn get_user_overview(&self, user_id: i32) -> Result<UserOverview, Error> {
+        let url = format!("{}/user/profile/basic/{}", API_URL, user_id);
+
+        let user_overview = self
+            .client
+            .get(&url)
+            .send()
+            .await?
+            .json::<UserOverview>()
+            .await?;
+
+        Ok(user_overview)
+    }
+
     pub async fn handle_token_renewal(&mut self) -> Result<(), Error> {
         if !jwt_still_valid(&self.jwt) {
             let token = login_and_get_token(&self.config, &self.client).await?;

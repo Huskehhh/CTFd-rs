@@ -29,6 +29,17 @@ pub struct ActivityData {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct UserOverview {
+    pub profile: UserOverviewData,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UserOverviewData {
+    pub id: i32,
+    pub name: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct GetTeamProfile {
     pub id: i32,
     pub name: String,
@@ -208,6 +219,16 @@ mod tests {
         assert_eq!(recent_data[1].name, "Ophiuchi".to_string());
         assert_eq!(recent_data[1].object_type, "machine".to_string());
         assert!(recent_data[1].challenge_category.is_none());
+    }
+
+    #[test]
+    fn test_deserialise_user_overvoew() {
+        let data = read_file_to_string("user_overview.json");
+
+        let recent_data: UserOverview = serde_json::from_str(&data).unwrap();
+        let profile = recent_data.profile;
+
+        assert_eq!(508037, profile.id);
     }
 
     #[test]
