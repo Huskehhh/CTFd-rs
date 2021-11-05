@@ -1,6 +1,6 @@
 [package]
 name = "ctfdb"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Jordyn <jordyn@husk.pro>"]
 edition = "2018"
 
