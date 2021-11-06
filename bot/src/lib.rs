@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate failure;
 
+use chrono::{DateTime, Local};
 use failure::Error;
 use futures::executor::block_on;
 use serenity::{
@@ -232,7 +233,10 @@ pub async fn update_htb_channel_topic_with_stats(
     channel_id: &ChannelId,
     http: &Http,
 ) -> Result<(), Error> {
-    let new_channel_topic = format!("Team rank {}, Points: {}", stats.rank, stats.points);
+    let local_timestamp: DateTime<Local> = Local::now();
+    let timestamp_string = local_timestamp.format("%a %b %e %T").to_string();
+
+    let new_channel_topic = format!("Team rank {}, Points: {}. Last updated: {}", stats.rank, stats.points, timestamp_string);
     match channel_id.edit(&http, |c| c.topic(new_channel_topic)).await {
         Ok(_) => Ok(()),
         Err(why) => Err(format_err!("Error when updating channel topic: {}", why)),
