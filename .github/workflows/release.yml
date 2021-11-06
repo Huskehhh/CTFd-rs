@@ -76,3 +76,5 @@ jobs:
           push: true
           tags: | 
             ghcr.io/huskehhh/ctfd_rs_ui:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
