@@ -26,6 +26,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           SCCACHE_ENDPOINT: ${{ secrets.SCCACHE_ENDPOINT }}
+          SCCACHE_BUCKET: ${{ secrets.SCCACHE_BUCKET }}
           SCCACHE_S3_USE_SSL: ${{ secrets.SCCACHE_S3_USE_SSL }}
         with:
           file: bot.Dockerfile
@@ -54,6 +55,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           SCCACHE_ENDPOINT: ${{ secrets.SCCACHE_ENDPOINT }}
+          SCCACHE_BUCKET: ${{ secrets.SCCACHE_BUCKET }}
           SCCACHE_S3_USE_SSL: ${{ secrets.SCCACHE_S3_USE_SSL }}
         with:
           file: rest-api.Dockerfile
