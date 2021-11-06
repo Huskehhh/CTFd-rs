@@ -28,6 +28,8 @@ jobs:
           push: true
           tags: |
             ghcr.io/huskehhh/ctfd_rs_bot:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   docker-release-api:
     runs-on: self-hosted
@@ -51,6 +53,9 @@ jobs:
           push: true
           tags: | 
             ghcr.io/huskehhh/ctfd_rs_api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
 
   docker-release-ui:
     runs-on: self-hosted
