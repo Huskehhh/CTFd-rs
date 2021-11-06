@@ -22,18 +22,18 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v2
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          SCCACHE_ENDPOINT: ${{ secrets.SCCACHE_ENDPOINT }}
-          SCCACHE_BUCKET: ${{ secrets.SCCACHE_BUCKET }}
-          SCCACHE_S3_USE_SSL: ${{ secrets.SCCACHE_S3_USE_SSL }}
         with:
           file: bot.Dockerfile
           context: .
           push: true
           tags: |
             ghcr.io/huskehhh/ctfd_rs_bot:latest
+          secrets: |
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            SCCACHE_ENDPOINT=${{ secrets.SCCACHE_ENDPOINT }}
+            SCCACHE_BUCKET=${{ secrets.SCCACHE_BUCKET }}
+            SCCACHE_S3_USE_SSL=${{ secrets.SCCACHE_S3_USE_SSL }}
 
   docker-release-api:
     runs-on: self-hosted
@@ -51,18 +51,18 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v2
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          SCCACHE_ENDPOINT: ${{ secrets.SCCACHE_ENDPOINT }}
-          SCCACHE_BUCKET: ${{ secrets.SCCACHE_BUCKET }}
-          SCCACHE_S3_USE_SSL: ${{ secrets.SCCACHE_S3_USE_SSL }}
         with:
           file: rest-api.Dockerfile
           context: .
           push: true
           tags: |
             ghcr.io/huskehhh/ctfd_rs_api:latest
+          secrets: |
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            SCCACHE_ENDPOINT=${{ secrets.SCCACHE_ENDPOINT }}
+            SCCACHE_BUCKET=${{ secrets.SCCACHE_BUCKET }}
+            SCCACHE_S3_USE_SSL=${{ secrets.SCCACHE_S3_USE_SSL }}
 
   docker-release-ui:
     runs-on: self-hosted
