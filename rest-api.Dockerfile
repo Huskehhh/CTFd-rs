@@ -1,7 +1,5 @@
 FROM ghcr.io/huskehhh/rust-sccache:latest as builder
 
-RUN apt-get update && apt-get install -y default-libmysqlclient-dev
-
 WORKDIR $HOME
 COPY ctfdb ctfdb
 COPY rest-api rest-api
