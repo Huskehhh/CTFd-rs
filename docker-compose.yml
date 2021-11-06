@@ -7,8 +7,6 @@ services:
     depends_on: 
       mariadb:
         condition: service_healthy
-      diesel_migration_runner:
-        condition: service_started
     restart: unless-stopped
     container_name: ctfd_rs_bot_dev
     environment:
@@ -26,8 +24,6 @@ services:
     depends_on: 
       mariadb:
         condition: service_healthy
-      diesel_migration_runner:
-        condition: service_started
     restart: unless-stopped
     container_name: ctfd_rs_api_dev
     environment:
@@ -48,7 +44,7 @@ services:
     environment:
       REACT_APP_API_URL: ${REACT_APP_API_URL}
     ports:
-      - 8080:80
+      - 8080:3000
   mariadb:
     container_name: ctfd_rs_db
     image: ghcr.io/linuxserver/mariadb:latest
@@ -67,13 +63,4 @@ services:
       test: mysqladmin ping -h 127.0.0.1 -u root --password=${MYSQL_ROOT_PASSWORD}
       timeout: 5s
       retries: 10
-  diesel_migration_runner:
-    container_name: ctfd_rs_migration_runner
-    image: willsquire/diesel-cli:latest
-    depends_on: 
-      mariadb:
-        condition: service_healthy
-    restart: unless-stopped
-    command: --database-url=${DATABASE_URL} setup
-    volumes:
-      - ./ctfdb:/app
+  

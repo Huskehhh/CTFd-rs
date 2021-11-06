@@ -4,7 +4,7 @@ use actix_web::{get, middleware, web, App, HttpResponse, HttpServer, Responder};
 
 use actix_cors::Cors;
 use chrono::Utc;
-use ctfdb::ctfs::db::{get_active_ctfs, get_challenges_for_ctfid, get_latest_scoreboard_status};
+use ctfdb::{ctfs::db::{get_active_ctfs, get_challenges_for_ctfid, get_latest_scoreboard_status}, init_migrations};
 use std::env;
 
 use serde::Serialize;
@@ -181,6 +181,11 @@ async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
+
+    // Initialise the database migrations.
+    if let Err(why) = init_migrations().await {
+        eprintln!("Error when initialising migrations: {}", why);
+    }
 
     let bind_address = env::var("BIND_ADDRESS").unwrap_or_else(|_| "127.0.0.1:8010".to_owned());
 
