@@ -175,17 +175,18 @@ pub async fn process_new_solves(
                     &solve.solve_type,
                     &connection,
                 ) {
-                    // Try convert the HTB ID to a Discord user
-                    let discord_id = get_discord_id_for(member.id).await?;
-
-                    let solver_name = discord_name_provider
-                        .name_for_id(discord_id)
-                        .await
-                        .unwrap_or_else(|| member.name.clone());
+                    // Try convert the HTB ID to a Discord user, otherwise just use their HTB username.
+                    let solver_name = match get_discord_id_for(member.id).await {
+                        Ok(discord_id) => discord_name_provider
+                            .name_for_id(discord_id)
+                            .await
+                            .unwrap_or_else(|| member.name.clone()),
+                        Err(_) => member.name.clone(),
+                    };
 
                     println!(
                         "HTB: Adding solve for user {}, challenge: {}",
-                        member.name, solver_name
+                        member.name, solve.name
                     );
 
                     add_challenge_solved_for_user(
