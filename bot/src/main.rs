@@ -32,6 +32,7 @@ use ctf_bot::{
 use ctfdb::{
     ctfs::db::initial_load_tasks,
     htb::{api::new_htbapi_instance, db::load_categories_to_cache, structs::HTBAPIConfig},
+    init_migrations,
 };
 
 pub struct Handler;
@@ -98,7 +99,14 @@ async fn dispatch_error(ctx: &Context, msg: &Message, error: DispatchError) {
 
 #[tokio::main]
 async fn main() {
+    // Load all environment variables from .env file.
     dotenv().ok();
+
+    // Initialise the database migrations.
+    if let Err(why) = init_migrations().await {
+        eprintln!("Error when initialising migrations: {}", why);
+    }
+
     let token =
         env::var("DISCORD_TOKEN").expect("Expected a token in your environment (DISCORD_TOKEN)");
     let owner_id_str = env::var("OWNER_ID").expect("Expected an OWNER_ID in your environment!");

@@ -2,6 +2,8 @@
 extern crate diesel;
 #[macro_use]
 extern crate failure;
+#[macro_use]
+extern crate diesel_migrations;
 
 use std::{env, sync::Arc, time::Duration};
 
@@ -49,6 +51,14 @@ async fn get_pooled_connection() -> Result<PooledMysqlConnection, Error> {
     let lock = &DB.read().await;
     let connection = lock.get()?;
     Ok(connection)
+}
+
+/// This initialising function should be called when the parent program starts and will embed the migrations as well as run them,
+/// creating the tables if they do not exist.
+pub async fn init_migrations() -> Result<(), Error> {
+    embed_migrations!();
+    let conn = get_pooled_connection().await?;
+    embedded_migrations::run(&conn).map_err(Into::into)
 }
 
 pub fn create_reqwest_client(api_key: &str, token_type: &str) -> Client {
