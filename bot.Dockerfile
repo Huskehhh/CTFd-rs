@@ -1,12 +1,6 @@
-FROM rust:1.53-slim-buster as builder
+FROM ghcr.io/huskehhh/rust-sccache:latest as builder
 
-RUN apt-get update && apt-get install -y build-essential default-libmysqlclient-dev libssl-dev openssl pkg-config
-RUN cargo install sccache
-
-ENV HOME=/home/rust
-ENV SCCACHE_CACHE_SIZE="1G"
-ENV SCCACHE_DIR=$HOME/.cache/sccache
-ENV RUSTC_WRAPPER="/usr/local/cargo/bin/sccache"
+RUN apt-get update && apt-get install -y default-libmysqlclient-dev
 
 WORKDIR $HOME
 COPY ctfdb ctfdb
