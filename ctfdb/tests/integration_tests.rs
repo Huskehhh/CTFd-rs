@@ -23,6 +23,7 @@ async fn get_htb_api() -> HTBApi {
     htb_api
 }
 
+#[ignore]
 #[tokio::test]
 async fn test_get_user_overview() {
     let api = get_htb_api().await;
@@ -38,6 +39,7 @@ async fn test_get_user_overview() {
     assert_eq!(htb_user_id, user_overview_data.id);
 }
 
+#[ignore]
 #[tokio::test]
 async fn test_get_user_activity() {
     let api = get_htb_api().await;
@@ -53,6 +55,7 @@ async fn test_get_user_activity() {
     assert_ne!(0, user_activity_data.activity.len());
 }
 
+#[ignore]
 #[tokio::test]
 async fn test_get_challenge_categories() {
     let api = get_htb_api().await;
@@ -67,6 +70,7 @@ async fn test_get_challenge_categories() {
     assert_ne!(0, categories.len());
 }
 
+#[ignore]
 #[tokio::test]
 async fn test_get_team_rank() {
     let api = get_htb_api().await;
@@ -82,6 +86,7 @@ async fn test_get_team_rank() {
     assert_ne!(0, rank_stats_data.points);
 }
 
+#[ignore]
 #[tokio::test]
 async fn test_get_team_statistics() {
     let api = get_htb_api().await;
@@ -97,6 +102,7 @@ async fn test_get_team_statistics() {
     assert_ne!(0, team_statistics.user_owns);
 }
 
+#[ignore]
 #[tokio::test]
 async fn test_list_team_members() {
     let api = get_htb_api().await;
@@ -110,6 +116,7 @@ async fn test_list_team_members() {
     assert_ne!(0, team_members.len());
 }
 
+#[ignore]
 #[tokio::test]
 async fn test_list_active_machines() {
     let api = get_htb_api().await;
@@ -124,6 +131,7 @@ async fn test_list_active_machines() {
     assert_ne!(0, active_machines_data.len());
 }
 
+#[ignore]
 #[tokio::test]
 async fn test_list_active_challenges() {
     let api = get_htb_api().await;
