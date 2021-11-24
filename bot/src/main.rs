@@ -204,7 +204,7 @@ async fn main() {
                         eprintln!("Error in HTB polling service... {}", why);
                     }
                     
-                    // Sleep for 5 minutes to avoid spamming the HTB API.
+                    // Sleep for 15 minutes to avoid spamming the HTB API.
                     sleep(Duration::from_secs(600));
                 }
             });
