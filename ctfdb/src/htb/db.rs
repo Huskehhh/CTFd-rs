@@ -17,13 +17,13 @@ use crate::{
 };
 use crate::{DiscordNameProvider, PooledMysqlConnection};
 
-use super::structs::{ActivityData, HTBApi, ListActiveChallengesData, RankStats};
+use super::structs::{GetRecentTeamActivityData, HTBApi, ListActiveChallengesData, RankStats};
 
 pub static CATEGORY_CACHE: Lazy<DashMap<i32, String>> = Lazy::new(DashMap::new);
 
 pub async fn map_htb_response_to_challenge(
     connection: &PooledMysqlConnection,
-    challenge: &ActivityData,
+    challenge: &GetRecentTeamActivityData,
 ) -> Result<HTBChallenge, Error> {
     let result = htb_dsl::htb_challenges
         .filter(htb_dsl::htb_id.eq(challenge.id))
@@ -161,43 +161,41 @@ pub async fn process_new_solves(
     api: &HTBApi,
     discord_name_provider: &dyn DiscordNameProvider,
 ) -> Result<(), Error> {
-    let team_members = &api.list_team_members().await?;
     let connection = get_pooled_connection().await?;
+    let recent_solves = api.get_recent_team_activity().await?;
 
-    for member in team_members {
-        let user_activity = &api.get_user_activity(member.id).await?;
+    for solve in recent_solves {
+        if let Ok(challenge) = map_htb_response_to_challenge(&connection, &solve).await {
+            if !is_challenge_solved_and_not_announced_for_user(
+                solve.user.id,
+                challenge.htb_id,
+                &solve.solve_type,
+                &connection,
+            ) {
+                let solve_user = &solve.user;
 
-        for solve in &user_activity.profile.activity {
-            if let Ok(challenge) = map_htb_response_to_challenge(&connection, solve).await {
-                if !is_challenge_solved_and_not_announced_for_user(
-                    member.id,
-                    challenge.htb_id,
+                // Try convert the HTB ID to a Discord user, otherwise just use their HTB username.
+                let solver_name = match get_discord_id_for(solve_user.id).await {
+                    Ok(discord_id) => discord_name_provider
+                        .name_for_id(discord_id)
+                        .await
+                        .unwrap_or_else(|| solve_user.name.clone()),
+                    Err(_) => solve_user.name.clone(),
+                };
+
+                println!(
+                    "HTB: Adding solve for user {}, challenge: {}",
+                    solve_user.name, solve.name
+                );
+
+                add_challenge_solved_for_user(
+                    solve_user.id,
+                    &solver_name,
+                    &solve.date,
+                    solve.id,
                     &solve.solve_type,
                     &connection,
-                ) {
-                    // Try convert the HTB ID to a Discord user, otherwise just use their HTB username.
-                    let solver_name = match get_discord_id_for(member.id).await {
-                        Ok(discord_id) => discord_name_provider
-                            .name_for_id(discord_id)
-                            .await
-                            .unwrap_or_else(|| member.name.clone()),
-                        Err(_) => member.name.clone(),
-                    };
-
-                    println!(
-                        "HTB: Adding solve for user {}, challenge: {}",
-                        member.name, solve.name
-                    );
-
-                    add_challenge_solved_for_user(
-                        member.id,
-                        &solver_name,
-                        &solve.date,
-                        solve.id,
-                        &solve.solve_type,
-                        &connection,
-                    )?;
-                }
+                )?;
             }
         }
     }

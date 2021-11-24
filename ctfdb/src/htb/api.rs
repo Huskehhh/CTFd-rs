@@ -87,6 +87,23 @@ impl HTBApi {
         Ok(team_members)
     }
 
+    pub async fn get_recent_team_activity(&self) -> Result<Vec<GetRecentTeamActivityData>, Error> {
+        let url = format!(
+            "{}/team/activity/{}?n_past_days=90",
+            API_URL, &self.config.team_id
+        );
+
+        let team_members = self
+            .client
+            .get(&url)
+            .send()
+            .await?
+            .json::<Vec<GetRecentTeamActivityData>>()
+            .await?;
+
+        Ok(team_members)
+    }
+
     pub async fn get_team_statistics(&self) -> Result<GetTeamStatistics, Error> {
         let url = format!("{}/team/stats/owns/{}", API_URL, &self.config.team_id);
 
