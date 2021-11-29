@@ -21,17 +21,13 @@ jobs:
       - name: Build rust projects 
         run: just check
       - name: Run tests for all rust projects
-        env:
-          HTB_EMAIL: ${{ secrets.HTB_EMAIL }}
-          HTB_PASSWORD: ${{ secrets.HTB_PASSWORD }}
-          HTB_TEAM_ID: ${{ secrets.HTB_TEAM_ID }}
         run: just test
 
   frontend:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [14.x, 16.x]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}

@@ -7,7 +7,7 @@ on:
 
 jobs:
   docker-release-bot:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -36,7 +36,7 @@ jobs:
             SCCACHE_S3_USE_SSL=${{ secrets.SCCACHE_S3_USE_SSL }}
 
   docker-release-api:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -65,7 +65,7 @@ jobs:
             SCCACHE_S3_USE_SSL=${{ secrets.SCCACHE_S3_USE_SSL }}
 
   docker-release-ui:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
