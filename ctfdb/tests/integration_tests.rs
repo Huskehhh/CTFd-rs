@@ -57,6 +57,20 @@ async fn test_get_user_activity() {
 
 #[ignore]
 #[tokio::test]
+async fn test_get_team_recent_activity() {
+    let api = get_htb_api().await;
+
+    let result = api.get_recent_team_activity().await;
+
+    assert!(result.is_ok());
+
+    let team_activity = result.unwrap();
+
+    assert_ne!(0, team_activity.len());
+}
+
+#[ignore]
+#[tokio::test]
 async fn test_get_challenge_categories() {
     let api = get_htb_api().await;
 

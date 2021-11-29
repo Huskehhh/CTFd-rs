@@ -46,8 +46,6 @@ pub struct GetTeamProfile {
     pub points: i32,
 }
 
-// This is currently unused, it has been replaced by retrieving all users of the team
-// and iterating through their individual activities to get the solve as soon as it happens
 #[derive(Debug, Deserialize)]
 pub struct GetRecentTeamActivityData {
     pub user: UserData,
@@ -222,7 +220,7 @@ mod tests {
     }
 
     #[test]
-    fn test_deserialise_user_overvoew() {
+    fn test_deserialise_user_overview() {
         let data = read_file_to_string("user_overview.json");
 
         let recent_data: UserOverview = serde_json::from_str(&data).unwrap();
