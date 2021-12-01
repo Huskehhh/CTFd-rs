@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.4.0](https://www.github.com/Huskehhh/CTFd-rs/compare/v0.3.0...v0.4.0) (2021-12-01)
+
+
+### Features
+
+* **bot:** integration test for team activity, fixup comment ([4495e2f](https://www.github.com/Huskehhh/CTFd-rs/commit/4495e2f4f26f035b46e9743b70ec18265d45e9ec))
+* **ci:** x86_64 deployment ([#150](https://www.github.com/Huskehhh/CTFd-rs/issues/150)) ([41288b4](https://www.github.com/Huskehhh/CTFd-rs/commit/41288b4ffeaf63b20ce20776e128742baf65c3e2))
+
+
+### Bug Fixes
+
+* **bot:** use different endpoint for team stats ([817fc91](https://www.github.com/Huskehhh/CTFd-rs/commit/817fc911ecfbafd09059ab4afc66e7276794c9f1))
+
 ## [0.3.0](https://www.github.com/Huskehhh/CTFd-rs/compare/v0.2.0...v0.3.0) (2021-11-24)
 
 
