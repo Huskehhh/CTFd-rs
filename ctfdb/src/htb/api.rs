@@ -119,7 +119,7 @@ impl HTBApi {
     }
 
     pub async fn get_team_rank(&self) -> Result<RankStats, Error> {
-        let url = format!("{}/rankings/team/ranking_bracket", API_URL);
+        let url = format!("{}/rankings/team/ranking_bracket/{}", API_URL, &self.config.team_id);
 
         let team_rank = self
             .client

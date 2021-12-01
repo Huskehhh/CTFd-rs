@@ -3,6 +3,8 @@ use std::env;
 use ctfdb::htb::structs::{HTBAPIConfig, HTBApi};
 
 async fn get_htb_api() -> HTBApi {
+    dotenv::dotenv().ok();
+
     let email = env::var("HTB_EMAIL").expect("No HTB_EMAIL environment variable defined!");
     let password = env::var("HTB_PASSWORD").expect("No HTB_PASSWORD environment variable defined!");
     let team_id = env::var("HTB_TEAM_ID")
